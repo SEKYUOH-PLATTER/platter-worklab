@@ -193,7 +193,12 @@ app.get('/api/contacts', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { password } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      console.error('ADMIN_PASSWORD environment variable is not set');
+      return res.status(503).json({ success: false, error: 'Admin authentication not configured' });
+    }
 
     if (password === adminPassword) {
       res.json({ success: true });
