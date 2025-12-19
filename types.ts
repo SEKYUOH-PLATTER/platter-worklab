@@ -1,13 +1,11 @@
-
 export interface BlogPost {
-  id: string;
-  slug: string;
+  id: number;
   title: string;
-  keyword: string;
-  summary: string;
+  category: string;
+  thumbnail_url: string;
   content: string;
-  date: string;
-  thumbnail: string;
+  view_count: number;
+  created_at: string;
 }
 
 export interface CurriculumItem {
@@ -27,4 +25,14 @@ export interface ContactForm {
   phone: string;
   needs: string;
   agreement: boolean;
+}
+
+export interface Contact {
+  id: number;
+  company_name: string;
+  contact_person: string;
+  email: string;
+  phone: string;
+  message: string;
+  created_at: string;
 }

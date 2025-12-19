@@ -1,0 +1,49 @@
+I have uploaded the design code. Now, I need to implement the **REAL FUNCTIONALITY** including Database, Admin, Email, and Infinite Scroll.
+
+**Task:** Refactor the project to implement the following features.
+
+### **Step 1: Install Dependencies**
+Please install these packages first:
+- `@supabase/supabase-js` (Database connection)
+- `react-quill` (Rich Text Editor for Admin)
+- `dompurify` & `jsdom` (Security for HTML rendering)
+- `date-fns` (Date formatting)
+- `react-intersection-observer` (For Infinite Scroll)
+- `nodemailer` (For sending email notifications)
+
+### **Step 2: Clean Up UI**
+- **Navbar:** Remove the temporary "Admin(Test)" link. The Admin page should only be accessible via the `/admin` URL.
+- **Admin Layout:** Ensure the Global Navbar & Footer are **HIDDEN** when inside the `/admin` route group.
+
+### **Step 3: Database Setup (Supabase)**
+Create a `lib/supabaseClient.ts` using `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (I will provide these in Secrets).
+
+We need two tables:
+1.  **`posts`** (Blog Data)
+    - `id` (int8, primary key), `title` (text), `category` (text), `thumbnail_url` (text), `content` (text), `view_count` (int8, default 0), `created_at` (timestamptz).
+2.  **`contacts`** (Inquiry Data)
+    - `id` (int8, primary key), `company_name` (text), `contact_person` (text), `email` (text), `phone` (text), `message` (text), `created_at` (timestamptz).
+
+### **Step 4: Contact Logic (DB + Email)**
+- Create an API Route (`app/api/contact/route.ts`).
+- When the User submits the form on `/contact`:
+    1.  **Insert data** into the `contacts` table in Supabase.
+    2.  **Send an Email Notification** to me (the admin) using `nodemailer`.
+        - Use environment variables: `EMAIL_USER` and `EMAIL_PASS`.
+        - Email Subject: "[Platter WorkLab] New Inquiry from (Company Name)".
+
+### **Step 5: Blog Page (Infinite Scroll)**
+- On `/blog`, fetch posts from Supabase ordered by `created_at` descending.
+- **Infinite Scroll:** Instead of pagination, load 6 posts initially. When the user scrolls to the bottom, auto-load the next 6 posts using `react-intersection-observer`.
+- On `/blog/[slug]`, increment `view_count` by 1.
+
+### **Step 6: Admin Features**
+- **Middleware Auth:** Protect `/admin` using `ADMIN_PASSWORD` from environment variables.
+- **Write Post:** Use `react-quill` for the content editor.
+    - Title, Category (Text Input), Thumbnail (URL Input).
+    - 'Publish' button saves to `posts`.
+- **Inquiry List:** Add a new menu "문의 내역 (Inquiries)" in the Sidebar.
+    - Display the list of data from the `contacts` table so I can check inquiries in the Admin panel.
+
+**Action:**
+Set up the file structure, install packages, and write the logic codes to connect everything.

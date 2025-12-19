@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { ContactForm } from '../types';
 import SEO from '../components/SEO';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<ContactForm>({
@@ -18,11 +19,12 @@ const Contact: React.FC = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [isSpamCheckPassed, setIsSpamCheckPassed] = useState(false);
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [cooldown, setCooldown] = useState(0);
 
-  // Rate limiter effect
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setInterval(() => setCooldown(c => c - 1), 1000);
@@ -37,24 +39,51 @@ const Contact: React.FC = () => {
     formData.phone && 
     formData.agreement &&
     isSpamCheckPassed &&
-    cooldown === 0;
+    cooldown === 0 &&
+    !isSubmitting;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
     
     const now = Date.now();
-    if (now - lastSubmitTime < 60000) { // 1 minute limit
+    if (now - lastSubmitTime < 60000) {
       setCooldown(60);
       return;
     }
 
     setLastSubmitTime(now);
-    // Simulate submission
-    setTimeout(() => {
-      setSubmitted(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 800);
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_name: formData.companyName,
+          contact_person: formData.contactName,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.needs,
+          employees: formData.employees,
+          job_title: formData.jobTitle,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitted(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        throw new Error(data.error || 'Failed to submit');
+      }
+    } catch (error: any) {
+      setSubmitError(error.message || 'Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,7 +118,6 @@ const Contact: React.FC = () => {
       <SEO title="교육 문의" description="플래터 워크랩 교육 문의. 문의를 남겨주시면 24시간 이내에 전문가가 최적의 커리큘럼을 제안해 드립니다." />
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-16">
-          {/* Info Sidebar */}
           <div className="lg:w-1/3">
             <h1 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">플래터 워크랩 <br />교육 문의</h1>
             <p className="text-slate-600 mb-12 leading-relaxed">
@@ -128,7 +156,6 @@ const Contact: React.FC = () => {
             </div>
           </div>
 
-          {/* Form */}
           <div className="lg:w-2/3 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-slate-100 relative">
             {cooldown > 0 && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-[2.5rem]">
@@ -139,6 +166,13 @@ const Contact: React.FC = () => {
             )}
             
             <form onSubmit={handleSubmit} className="space-y-6">
+              {submitError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
+                  <AlertCircle size={20} />
+                  {submitError}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">회사명 *</label>
@@ -223,7 +257,6 @@ const Contact: React.FC = () => {
                 ></textarea>
               </div>
 
-              {/* Spam Protection - UI Mockup */}
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="relative">
@@ -268,7 +301,15 @@ const Contact: React.FC = () => {
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >
-                문의 신청하기 <Send size={20} />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" /> 제출 중...
+                  </>
+                ) : (
+                  <>
+                    문의 신청하기 <Send size={20} />
+                  </>
+                )}
               </button>
             </form>
           </div>

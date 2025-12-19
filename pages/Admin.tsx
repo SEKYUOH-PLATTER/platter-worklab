@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Quill from 'quill';
 import DOMPurify from 'dompurify';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -15,9 +16,17 @@ import {
   X,
   Calendar,
   User,
-  ExternalLink
+  ExternalLink,
+  MessageSquare,
+  Loader2,
+  Mail,
+  Phone,
+  Building2
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import { BlogPost, Contact } from '../types';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -25,14 +34,55 @@ const Admin: React.FC = () => {
   const [isPublishing, setIsPublishing] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   
-  // Form State
   const [title, setTitle] = useState('');
-  const [keyword, setKeyword] = useState('AI 활용');
+  const [category, setCategory] = useState('AI 활용');
   const [imageUrl, setImageUrl] = useState('');
-  const [summary, setSummary] = useState('');
+  
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   
   const quillRef = useRef<HTMLDivElement>(null);
   const quillInstance = useRef<Quill | null>(null);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/posts?limit=50`);
+      const data = await response.json();
+      if (data.success) {
+        setPosts(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/contacts`);
+      const data = await response.json();
+      if (data.success) {
+        setContacts(data.data || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch contacts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'posts') {
+      fetchPosts();
+    } else if (activeTab === 'inquiries') {
+      fetchContacts();
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab === 'new' && quillRef.current && !quillInstance.current) {
@@ -63,30 +113,72 @@ const Admin: React.FC = () => {
     navigate('/login');
   };
 
-  const handlePublish = () => {
-    if (!quillInstance.current) return;
+  const handlePublish = async () => {
+    if (!quillInstance.current || !title) return;
     setIsPublishing(true);
     
     const editorContent = quillInstance.current.root.innerHTML;
     const cleanHtml = DOMPurify.sanitize(editorContent);
     
-    console.log("Publishing Post:", {
-      title,
-      keyword,
-      imageUrl,
-      summary,
-      content: cleanHtml
-    });
-    
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_URL}/api/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          category,
+          thumbnail_url: imageUrl,
+          content: cleanHtml,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('게시물이 성공적으로 발행되었습니다.');
+        setTitle('');
+        setImageUrl('');
+        setCategory('AI 활용');
+        if (quillInstance.current) {
+          quillInstance.current.root.innerHTML = '';
+        }
+        setActiveTab('posts');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      alert('게시 실패: ' + error.message);
+    } finally {
       setIsPublishing(false);
-      setActiveTab('posts');
-      alert('게시물이 성공적으로 발행되었습니다.');
-      // Reset form
-      setTitle('');
-      setImageUrl('');
-      setSummary('');
-    }, 1500);
+    }
+  };
+
+  const handleDeletePost = async (id: number) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/posts/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPosts(prev => prev.filter(p => p.id !== id));
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      alert('삭제 실패: ' + error.message);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'yyyy.MM.dd HH:mm', { locale: ko });
+    } catch {
+      return dateString;
+    }
   };
 
   const PreviewModal = () => {
@@ -110,9 +202,9 @@ const Admin: React.FC = () => {
           <div className="flex-grow overflow-y-auto p-8 md:p-12">
             <div className="max-w-3xl mx-auto">
               <div className="flex items-center gap-3 mb-4">
-                <span className="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">{keyword}</span>
+                <span className="bg-blue-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">{category}</span>
                 <div className="text-slate-400 text-sm flex items-center gap-1">
-                  <Calendar size={14} /> 2024.12.01
+                  <Calendar size={14} /> {format(new Date(), 'yyyy.MM.dd')}
                 </div>
                 <div className="text-slate-400 text-sm flex items-center gap-1">
                   <User size={14} /> 플래터 연구소
@@ -134,11 +226,73 @@ const Admin: React.FC = () => {
     );
   };
 
+  const ContactDetailModal = () => {
+    if (!selectedContact) return null;
+
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setSelectedContact(null)}></div>
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-fade-in">
+          <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="flex items-center gap-2 text-slate-700 font-bold text-lg">
+              <MessageSquare size={20} /> 문의 상세
+            </div>
+            <button onClick={() => setSelectedContact(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400">
+              <X size={24} />
+            </button>
+          </div>
+          
+          <div className="p-8 space-y-6">
+            <div className="flex items-center gap-3">
+              <Building2 size={20} className="text-blue-600" />
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">회사명</p>
+                <p className="text-lg font-bold text-slate-900">{selectedContact.company_name}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <User size={20} className="text-blue-600" />
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">담당자</p>
+                <p className="text-lg font-bold text-slate-900">{selectedContact.contact_person}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Mail size={20} className="text-blue-600" />
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">이메일</p>
+                <a href={`mailto:${selectedContact.email}`} className="text-lg font-bold text-blue-600 hover:underline">{selectedContact.email}</a>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Phone size={20} className="text-blue-600" />
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">연락처</p>
+                <a href={`tel:${selectedContact.phone}`} className="text-lg font-bold text-blue-600 hover:underline">{selectedContact.phone}</a>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t border-slate-100">
+              <p className="text-xs text-slate-400 font-bold uppercase mb-2">문의 내용</p>
+              <p className="text-slate-700 bg-slate-50 p-4 rounded-xl">{selectedContact.message || '내용 없음'}</p>
+            </div>
+            
+            <div className="text-xs text-slate-400 text-right">
+              접수일: {formatDate(selectedContact.created_at)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="h-screen bg-slate-50 flex overflow-hidden">
       <SEO title="관리자 대시보드" />
       
-      {/* Admin Sidebar - Fixed Full Height */}
       <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col h-full z-20 shrink-0">
         <div className="p-8">
           <Link to="/" className="text-xl font-bold text-white mb-8 block hover:text-blue-400 transition-colors">
@@ -163,6 +317,12 @@ const Admin: React.FC = () => {
           >
             <PlusCircle size={20} /> 새 글 작성
           </button>
+          <button 
+            onClick={() => setActiveTab('inquiries')}
+            className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl font-bold transition-all ${activeTab === 'inquiries' ? 'bg-slate-800 text-white shadow-inner' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
+          >
+            <MessageSquare size={20} /> 문의 내역
+          </button>
         </nav>
         
         <div className="p-8 border-t border-slate-800">
@@ -179,7 +339,6 @@ const Admin: React.FC = () => {
         </div>
       </aside>
 
-      {/* Admin Content - Scrollable */}
       <main className="flex-grow h-full overflow-y-auto bg-slate-50 relative">
         <div className="p-8 md:p-12 max-w-6xl mx-auto">
           {activeTab === 'posts' && (
@@ -194,50 +353,112 @@ const Admin: React.FC = () => {
                 </button>
               </header>
               
-              <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50/80 border-b border-slate-100">
-                      <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">게시물 제목</th>
-                      <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">조회수</th>
-                      <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">등록 날짜</th>
-                      <th className="px-8 py-6"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {[
-                      { title: '비전공자 프롬프트 엔지니어링 마스터', views: '1,245', date: '2024.11.20', keyword: 'AI 활용' },
-                      { title: '데이터 마케팅 전략: 숫자가 성과를 만든다', views: '852', date: '2024.11.18', keyword: '데이터 분석' },
-                      { title: '엑셀 보고서 자동화 레시피 10선', views: '2,104', date: '2024.11.15', keyword: '업무 효율' },
-                      { title: '2025년, 일하는 방식은 어떻게 변할까', views: '450', date: '2024.11.12', keyword: '트렌드' },
-                      { title: '팀장님을 위한 파이썬 실무 가이드', views: '98', date: '2024.11.08', keyword: '파이썬' },
-                    ].map((row, i) => (
-                      <tr key={i} className="hover:bg-blue-50/30 transition-colors group">
-                        <td className="px-8 py-6">
-                          <div className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">{row.title}</div>
-                          <div className="inline-block mt-2 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-widest">{row.keyword}</div>
-                        </td>
-                        <td className="px-8 py-6">
-                          <div className="flex items-center gap-2 text-slate-600 font-medium">
-                            <span className="text-blue-600 font-bold">{row.views}</span> views
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-sm text-slate-400 font-medium">{row.date}</td>
-                        <td className="px-8 py-6 text-right">
-                          <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                            <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm">
-                              <ExternalLink size={18} />
-                            </button>
-                            <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 rounded-xl transition-all shadow-sm">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </td>
+              {loading ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 size={48} className="animate-spin text-blue-600" />
+                </div>
+              ) : posts.length === 0 ? (
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] p-20 text-center">
+                  <FileText size={48} className="mx-auto text-slate-300 mb-4" />
+                  <p className="text-slate-500 text-lg">등록된 게시물이 없습니다.</p>
+                  <button onClick={() => setActiveTab('new')} className="mt-6 text-blue-600 font-bold hover:underline">
+                    첫 게시물 작성하기
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-100">
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">게시물 제목</th>
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">조회수</th>
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">등록 날짜</th>
+                        <th className="px-8 py-6"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {posts.map((post) => (
+                        <tr key={post.id} className="hover:bg-blue-50/30 transition-colors group">
+                          <td className="px-8 py-6">
+                            <div className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">{post.title}</div>
+                            <div className="inline-block mt-2 px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-widest">{post.category}</div>
+                          </td>
+                          <td className="px-8 py-6">
+                            <div className="flex items-center gap-2 text-slate-600 font-medium">
+                              <span className="text-blue-600 font-bold">{post.view_count.toLocaleString()}</span> views
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-sm text-slate-400 font-medium">{formatDate(post.created_at)}</td>
+                          <td className="px-8 py-6 text-right">
+                            <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                              <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm">
+                                <ExternalLink size={18} />
+                              </button>
+                              <button 
+                                onClick={() => handleDeletePost(post.id)}
+                                className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 rounded-xl transition-all shadow-sm"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'inquiries' && (
+            <div className="animate-fade-in">
+              <header className="mb-10">
+                <h1 className="text-4xl font-bold text-slate-900 tracking-tight">문의 내역</h1>
+                <p className="text-slate-500 mt-2 text-lg">접수된 교육 문의를 확인하고 관리하세요.</p>
+              </header>
+              
+              {loading ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 size={48} className="animate-spin text-blue-600" />
+                </div>
+              ) : contacts.length === 0 ? (
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] p-20 text-center">
+                  <MessageSquare size={48} className="mx-auto text-slate-300 mb-4" />
+                  <p className="text-slate-500 text-lg">접수된 문의가 없습니다.</p>
+                </div>
+              ) : (
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/80 border-b border-slate-100">
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">회사명</th>
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">담당자</th>
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">연락처</th>
+                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">접수일</th>
+                        <th className="px-8 py-6"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {contacts.map((contact) => (
+                        <tr key={contact.id} className="hover:bg-blue-50/30 transition-colors group cursor-pointer" onClick={() => setSelectedContact(contact)}>
+                          <td className="px-8 py-6">
+                            <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{contact.company_name}</div>
+                          </td>
+                          <td className="px-8 py-6 text-slate-600">{contact.contact_person}</td>
+                          <td className="px-8 py-6 text-slate-600">{contact.email}</td>
+                          <td className="px-8 py-6 text-sm text-slate-400 font-medium">{formatDate(contact.created_at)}</td>
+                          <td className="px-8 py-6 text-right">
+                            <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100">
+                              <Eye size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
@@ -252,10 +473,18 @@ const Admin: React.FC = () => {
                   <button onClick={() => setActiveTab('posts')} className="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 transition-all active:scale-95">취소</button>
                   <button 
                     onClick={handlePublish}
-                    disabled={isPublishing}
+                    disabled={isPublishing || !title}
                     className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/30 flex items-center gap-2 disabled:opacity-50 active:scale-95"
                   >
-                    {isPublishing ? '게시 중...' : <><Send size={20} /> 게시하기</>}
+                    {isPublishing ? (
+                      <>
+                        <Loader2 size={20} className="animate-spin" /> 게시 중...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} /> 게시하기
+                      </>
+                    )}
                   </button>
                 </div>
               </header>
@@ -290,8 +519,8 @@ const Admin: React.FC = () => {
                       <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">카테고리 분류</label>
                       <input 
                         type="text"
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white font-bold text-slate-700 transition-all"
                         placeholder="예: AI 활용, Insight, News"
                       />
@@ -313,17 +542,6 @@ const Admin: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">게시물 요약 (SEO)</label>
-                      <textarea 
-                        value={summary}
-                        onChange={(e) => setSummary(e.target.value)}
-                        rows={4} 
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white text-sm resize-none leading-relaxed transition-all" 
-                        placeholder="SNS나 검색 엔진에 노출될 간결한 요약문을 입력하세요." 
-                      />
-                    </div>
-
                     <div className="pt-6 border-t border-slate-50">
                       <button 
                         onClick={() => setShowPreview(true)}
@@ -340,13 +558,12 @@ const Admin: React.FC = () => {
         </div>
       </main>
       
-      {/* Modals */}
       <PreviewModal />
+      <ContactDetailModal />
     </div>
   );
 };
 
-// Internal Link component replacement for local logic
 const Link = ({ to, children, className }: any) => {
   const navigate = useNavigate();
   return (

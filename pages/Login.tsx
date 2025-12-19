@@ -1,25 +1,42 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, AlertCircle } from 'lucide-react';
+import { Lock, AlertCircle, Loader2 } from 'lucide-react';
 import SEO from '../components/SEO';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Assuming process.env.ADMIN_PASSWORD is set. Default to admin123 for local test.
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    setIsLoading(true);
+    setError('');
 
-    if (password === adminPassword) {
-      localStorage.setItem('isAdminAuthenticated', 'true');
-      navigate('/admin');
-    } else {
-      setError('올바르지 않은 비밀번호입니다.');
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('isAdminAuthenticated', 'true');
+        navigate('/admin');
+      } else {
+        setError('올바르지 않은 비밀번호입니다.');
+        setPassword('');
+      }
+    } catch (err) {
+      setError('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
       setPassword('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,7 +60,8 @@ const Login: React.FC = () => {
                 setPassword(e.target.value);
                 setError('');
               }}
-              className={`w-full bg-slate-800 border ${error ? 'border-red-500' : 'border-slate-700'} text-white rounded-xl px-4 py-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all`}
+              disabled={isLoading}
+              className={`w-full bg-slate-800 border ${error ? 'border-red-500' : 'border-slate-700'} text-white rounded-xl px-4 py-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all disabled:opacity-50`}
             />
             {error && (
               <div className="absolute -bottom-6 left-0 flex items-center gap-1 text-red-500 text-xs font-medium">
@@ -52,8 +70,18 @@ const Login: React.FC = () => {
             )}
           </div>
           
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all mt-4 flex items-center justify-center gap-2 active:scale-95">
-            접속하기
+          <button 
+            type="submit"
+            disabled={isLoading || !password}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all mt-4 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 size={20} className="animate-spin" /> 로그인 중...
+              </>
+            ) : (
+              '접속하기'
+            )}
           </button>
         </form>
         

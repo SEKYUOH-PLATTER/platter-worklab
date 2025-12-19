@@ -23,7 +23,6 @@ const Navbar: React.FC = () => {
   const navLinks = [
     { name: '서비스 소개', href: '/#about' },
     { name: '블로그', href: '/blog' },
-    { name: 'Admin(Test)', href: '/admin' },
   ];
 
   return (
