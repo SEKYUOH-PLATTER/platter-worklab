@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 import { ContactForm } from '../types';
 import SEO from '../components/SEO';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState<ContactForm>({
@@ -57,30 +56,26 @@ const Contact: React.FC = () => {
     setSubmitError('');
 
     try {
-      const response = await fetch(`${API_URL}/api/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data, error } = await supabase
+        .from('contacts')
+        .insert([{
           company_name: formData.companyName,
           contact_person: formData.contactName,
           email: formData.email,
           phone: formData.phone,
           message: formData.needs,
-          employees: formData.employees,
-          job_title: formData.jobTitle,
-        }),
-      });
+        }]);
 
-      const data = await response.json();
-
-      if (data.success) {
-        setSubmitted(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        throw new Error(data.error || 'Failed to submit');
+      if (error) {
+        throw error;
       }
+
+      setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error: any) {
+      console.error('Contact submission error:', error);
       setSubmitError(error.message || 'Failed to submit. Please try again.');
+      alert('Error: ' + (error.message || 'Failed to submit'));
     } finally {
       setIsSubmitting(false);
     }
