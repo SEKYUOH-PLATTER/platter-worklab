@@ -87,9 +87,10 @@ Preferred communication style: Simple, everyday language.
 - `VITE_SUPABASE_URL`: Supabase project URL
 - `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
 - `GEMINI_API_KEY`: Google AI API key
-- `EMAIL_USER`: Gmail address for notifications
-- `EMAIL_PASS`: Gmail app password
 - `ADMIN_PASSWORD`: Admin login password (required, no default)
+- `VITE_EMAILJS_SERVICE_ID`: EmailJS service ID for email notifications
+- `VITE_EMAILJS_TEMPLATE_ID`: EmailJS template ID
+- `VITE_EMAILJS_PUBLIC_KEY`: EmailJS public key
 
 ## Database Schema
 
