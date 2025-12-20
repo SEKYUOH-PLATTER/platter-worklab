@@ -110,4 +110,6 @@ Preferred communication style: Simple, everyday language.
 - `email` (text)
 - `phone` (text)
 - `message` (text)
+- `employee_count` (text)
+- `job_title` (text)
 - `created_at` (timestamptz)

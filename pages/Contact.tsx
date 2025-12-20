@@ -66,7 +66,6 @@ const Contact: React.FC = () => {
           message: formData.needs,
           employee_count: formData.employees,
           job_title: formData.jobTitle,
-          department: formData.department,
         }]);
 
       if (error) {

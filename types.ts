@@ -36,6 +36,5 @@ export interface Contact {
   message: string;
   employee_count: string;
   job_title: string;
-  department: string;
   created_at: string;
 }
