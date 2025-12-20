@@ -274,6 +274,21 @@ const Admin: React.FC = () => {
                 <a href={`tel:${selectedContact.phone}`} className="text-lg font-bold text-blue-600 hover:underline">{selectedContact.phone}</a>
               </div>
             </div>
+
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">직원 수</p>
+                <p className="text-slate-700 font-medium">{selectedContact.employee_count || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">직함</p>
+                <p className="text-slate-700 font-medium">{selectedContact.job_title || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400 font-bold uppercase">부서</p>
+                <p className="text-slate-700 font-medium">{selectedContact.department || '-'}</p>
+              </div>
+            </div>
             
             <div className="pt-4 border-t border-slate-100">
               <p className="text-xs text-slate-400 font-bold uppercase mb-2">문의 내용</p>
@@ -428,27 +443,31 @@ const Admin: React.FC = () => {
                   <p className="text-slate-500 text-lg">접수된 문의가 없습니다.</p>
                 </div>
               ) : (
-                <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50">
-                  <table className="w-full text-left border-collapse">
+                <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[900px]">
                     <thead>
                       <tr className="bg-slate-50/80 border-b border-slate-100">
-                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">회사명</th>
-                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">담당자</th>
-                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">연락처</th>
-                        <th className="px-8 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">접수일</th>
-                        <th className="px-8 py-6"></th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">회사명</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">담당자</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">직원 수</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">직함/부서</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">연락처</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">접수일</th>
+                        <th className="px-6 py-6"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {contacts.map((contact) => (
                         <tr key={contact.id} className="hover:bg-blue-50/30 transition-colors group cursor-pointer" onClick={() => setSelectedContact(contact)}>
-                          <td className="px-8 py-6">
+                          <td className="px-6 py-6">
                             <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{contact.company_name}</div>
                           </td>
-                          <td className="px-8 py-6 text-slate-600">{contact.contact_person}</td>
-                          <td className="px-8 py-6 text-slate-600">{contact.email}</td>
-                          <td className="px-8 py-6 text-sm text-slate-400 font-medium">{formatDate(contact.created_at)}</td>
-                          <td className="px-8 py-6 text-right">
+                          <td className="px-6 py-6 text-slate-600">{contact.contact_person}</td>
+                          <td className="px-6 py-6 text-slate-500 text-sm">{contact.employee_count || '-'}</td>
+                          <td className="px-6 py-6 text-slate-500 text-sm">{contact.job_title || contact.department || '-'}</td>
+                          <td className="px-6 py-6 text-slate-600 text-sm">{contact.email}</td>
+                          <td className="px-6 py-6 text-sm text-slate-400 font-medium">{formatDate(contact.created_at)}</td>
+                          <td className="px-6 py-6 text-right">
                             <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm opacity-0 group-hover:opacity-100">
                               <Eye size={18} />
                             </button>

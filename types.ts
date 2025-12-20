@@ -34,5 +34,8 @@ export interface Contact {
   email: string;
   phone: string;
   message: string;
+  employee_count: string;
+  job_title: string;
+  department: string;
   created_at: string;
 }

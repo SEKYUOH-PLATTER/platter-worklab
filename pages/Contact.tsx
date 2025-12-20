@@ -46,12 +46,11 @@ const Contact: React.FC = () => {
     if (!isFormValid) return;
     
     const now = Date.now();
-    if (now - lastSubmitTime < 60000) {
-      setCooldown(60);
+    if (now - lastSubmitTime < 10000) {
+      setCooldown(10);
       return;
     }
 
-    setLastSubmitTime(now);
     setIsSubmitting(true);
     setSubmitError('');
 
@@ -64,12 +63,16 @@ const Contact: React.FC = () => {
           email: formData.email,
           phone: formData.phone,
           message: formData.needs,
+          employee_count: formData.employees,
+          job_title: formData.jobTitle,
+          department: formData.department,
         }]);
 
       if (error) {
         throw error;
       }
 
+      setLastSubmitTime(Date.now());
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error: any) {
@@ -156,7 +159,7 @@ const Contact: React.FC = () => {
               <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-[2.5rem]">
                 <AlertCircle size={48} className="text-amber-500 mb-4" />
                 <h3 className="text-xl font-bold text-slate-900">잠시만 기다려 주세요</h3>
-                <p className="text-slate-600 mt-2">너무 많은 요청이 감지되었습니다. {cooldown}초 후에 다시 시도해 주세요.</p>
+                <p className="text-slate-600 mt-2">중복 제출 방지를 위해 {cooldown}초 후에 다시 시도해 주세요.</p>
               </div>
             )}
             
