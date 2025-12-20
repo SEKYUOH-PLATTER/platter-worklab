@@ -129,8 +129,8 @@ const Home: React.FC = () => {
   return (
     <article className="w-full overflow-hidden">
       <SEO 
-        title="홈 | PM 없이도 PM처럼 일하는 팀을 만듭니다" 
-        description="비전공자 실무팀을 위한 데이터 기반 일하는 방식 & AI 활용 워크숍. 단순 툴 교육이 아닌, 일을 바라보는 관점을 바꿉니다."
+        title="Platter WorkLab" 
+        description="Practical growth research for PMs. 비전공자 실무팀을 위한 데이터 기반 일하는 방식 & AI 활용 워크숍."
       />
       
       {/* 1. Hero Section */}
