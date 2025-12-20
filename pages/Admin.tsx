@@ -275,7 +275,7 @@ const Admin: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase">직원 수</p>
                 <p className="text-slate-700 font-medium">{selectedContact.employee_count || '-'}</p>
@@ -283,10 +283,6 @@ const Admin: React.FC = () => {
               <div>
                 <p className="text-xs text-slate-400 font-bold uppercase">직함</p>
                 <p className="text-slate-700 font-medium">{selectedContact.job_title || '-'}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 font-bold uppercase">부서</p>
-                <p className="text-slate-700 font-medium">{selectedContact.department || '-'}</p>
               </div>
             </div>
             
@@ -450,7 +446,7 @@ const Admin: React.FC = () => {
                         <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">회사명</th>
                         <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">담당자</th>
                         <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">직원 수</th>
-                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">직함/부서</th>
+                        <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">직함</th>
                         <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">연락처</th>
                         <th className="px-6 py-6 text-xs font-bold text-slate-400 uppercase tracking-widest">접수일</th>
                         <th className="px-6 py-6"></th>
@@ -464,7 +460,7 @@ const Admin: React.FC = () => {
                           </td>
                           <td className="px-6 py-6 text-slate-600">{contact.contact_person}</td>
                           <td className="px-6 py-6 text-slate-500 text-sm">{contact.employee_count || '-'}</td>
-                          <td className="px-6 py-6 text-slate-500 text-sm">{contact.job_title || contact.department || '-'}</td>
+                          <td className="px-6 py-6 text-slate-500 text-sm">{contact.job_title || '-'}</td>
                           <td className="px-6 py-6 text-slate-600 text-sm">{contact.email}</td>
                           <td className="px-6 py-6 text-sm text-slate-400 font-medium">{formatDate(contact.created_at)}</td>
                           <td className="px-6 py-6 text-right">
