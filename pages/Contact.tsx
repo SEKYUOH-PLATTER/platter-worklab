@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 import { supabase } from '../lib/supabaseClient';
 import { ContactForm } from '../types';
 import SEO from '../components/SEO';
@@ -70,6 +71,26 @@ const Contact: React.FC = () => {
 
       if (error) {
         throw error;
+      }
+
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (serviceId && templateId && publicKey) {
+        try {
+          await emailjs.send(serviceId, templateId, {
+            company_name: formData.companyName,
+            employee_count: formData.employees,
+            contact_name: formData.contactName,
+            job_title: formData.jobTitle,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.needs,
+          }, publicKey);
+        } catch (emailError) {
+          console.warn('Email notification failed:', emailError);
+        }
       }
 
       setLastSubmitTime(Date.now());
