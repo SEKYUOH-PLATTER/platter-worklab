@@ -85,6 +85,28 @@ const Blog: React.FC = () => {
     }
   };
 
+  const handleShare = async () => {
+    if (!selectedPost) return;
+    
+    const currentUrl = window.location.href;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: selectedPost.title,
+          url: currentUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(currentUrl);
+        alert('링크가 복사되었습니다.');
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Share failed:', error);
+      }
+    }
+  };
+
   if (selectedPost) {
     const cleanHtml = DOMPurify.sanitize(selectedPost.content);
     
@@ -120,7 +142,11 @@ const Blog: React.FC = () => {
             <div className="flex items-center gap-2 text-slate-400 text-sm">
               <Eye size={14} /> {selectedPost.view_count} views
             </div>
-            <button className="ml-auto text-slate-400 hover:text-blue-600 transition-colors">
+            <button 
+              onClick={handleShare}
+              className="ml-auto text-slate-400 hover:text-blue-600 transition-colors"
+              title="공유하기"
+            >
               <Share2 size={20} />
             </button>
           </div>
