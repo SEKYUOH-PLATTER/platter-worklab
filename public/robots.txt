@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://platter-worklab.replit.app/sitemap.xml
