@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import Home from './pages/Home';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
@@ -8,6 +9,34 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+
+const SentryTestButton: React.FC = () => {
+  const triggerError = () => {
+    throw new Error("Sentry Test Error - This is a test to verify Sentry integration is working!");
+  };
+  
+  return (
+    <button
+      onClick={triggerError}
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        padding: '10px 20px',
+        backgroundColor: '#e74c3c',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        zIndex: 9999,
+        fontSize: '14px',
+        fontWeight: 'bold',
+      }}
+    >
+      Test Sentry Error
+    </button>
+  );
+};
 
 // Component to handle conditional layout visibility
 // Fix: Explicitly type LayoutWrapper as React.FC to correctly handle nested children in JSX
@@ -53,6 +82,7 @@ const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </LayoutWrapper>
+      <SentryTestButton />
     </Router>
   );
 };
