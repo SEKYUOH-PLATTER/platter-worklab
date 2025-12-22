@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Lock, AlertCircle, Loader2 } from 'lucide-react';
 import SEO from '../components/SEO';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-
 const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,28 +14,25 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError('');
 
-    try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
+    const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
 
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('isAdminAuthenticated', 'true');
-        navigate('/admin');
-      } else {
-        setError('올바르지 않은 비밀번호입니다.');
-        setPassword('');
-      }
-    } catch (err) {
-      setError('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      setPassword('');
-    } finally {
+    if (!adminPassword) {
+      alert('서버 설정 오류: 비밀번호 환경변수가 없습니다.');
+      setError('환경변수 설정 오류');
       setIsLoading(false);
+      return;
     }
+
+    if (password === adminPassword) {
+      localStorage.setItem('isAdminAuthenticated', 'true');
+      navigate('/admin');
+    } else {
+      alert('비밀번호가 일치하지 않습니다.');
+      setError('올바르지 않은 비밀번호입니다.');
+      setPassword('');
+    }
+
+    setIsLoading(false);
   };
 
   return (
