@@ -20,7 +20,6 @@ import {
   Building
 } from 'lucide-react';
 import SEO from '../components/SEO';
-import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -128,12 +127,12 @@ const Home: React.FC = () => {
   ];
 
   const galleryImages = [
-    '/images/gallery/edu-1.png',
     '/images/gallery/edu-2.png',
-    '/images/gallery/edu-3.png',
-    '/images/gallery/edu-4.png',
+    '/images/gallery/edu-1.png',
     '/images/gallery/edu-5.png',
-    '/images/gallery/edu-6.png'
+    '/images/gallery/edu-3.png',
+    '/images/gallery/edu-6.png',
+    '/images/gallery/edu-4.png'
   ];
 
   const filteredCards = activeCategory === '전체' 
@@ -389,23 +388,19 @@ const Home: React.FC = () => {
             </Swiper>
           </div>
 
-          {/* Desktop: Masonry Grid */}
-          <div className="hidden md:block">
-            <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 1024: 3 }}>
-              <Masonry gutter="24px">
-                {galleryImages.map((img, i) => (
-                  <ScrollReveal key={i}>
-                    <div className="rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
-                      <img 
-                        src={img} 
-                        alt={`교육 현장 ${i + 1}`} 
-                        className="w-full h-auto object-cover block"
-                      />
-                    </div>
-                  </ScrollReveal>
-                ))}
-              </Masonry>
-            </ResponsiveMasonry>
+          {/* Desktop: CSS Columns Grid */}
+          <div className="hidden md:block columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            {galleryImages.map((img, i) => (
+              <ScrollReveal key={i}>
+                <div className="break-inside-avoid mb-6 rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
+                  <img 
+                    src={img} 
+                    alt={`교육 현장 ${i + 1}`} 
+                    className="w-full h-auto object-cover block"
+                  />
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
