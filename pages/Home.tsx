@@ -20,6 +20,11 @@ import {
   Building
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 const ScrollReveal: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
@@ -120,6 +125,15 @@ const Home: React.FC = () => {
   const companies = [
     "Company A", "Enterprise B", "Tech Solutions C", "Global Inc D",
     "Creative Studio E", "Financial Group F", "Innovate Co G", "Future Works H"
+  ];
+
+  const galleryImages = [
+    '/images/gallery/edu-1.png',
+    '/images/gallery/edu-2.png',
+    '/images/gallery/edu-3.png',
+    '/images/gallery/edu-4.png',
+    '/images/gallery/edu-5.png',
+    '/images/gallery/edu-6.png'
   ];
 
   const filteredCards = activeCategory === '전체' 
@@ -336,6 +350,62 @@ const Home: React.FC = () => {
                 </div>
               </ScrollReveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery Section */}
+      <section className="py-24 bg-slate-50 px-4">
+        <div className="max-w-7xl mx-auto">
+          <ScrollReveal>
+            <div className="text-center mb-16">
+              <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">Gallery</span>
+              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">생생한 교육 현장</h2>
+            </div>
+          </ScrollReveal>
+
+          {/* Mobile: Swiper Carousel */}
+          <div className="block md:hidden">
+            <Swiper
+              modules={[Pagination, Autoplay]}
+              spaceBetween={16}
+              slidesPerView={1.2}
+              centeredSlides={true}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              className="pb-12"
+            >
+              {galleryImages.map((img, i) => (
+                <SwiperSlide key={i}>
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <img 
+                      src={img} 
+                      alt={`교육 현장 ${i + 1}`} 
+                      className="w-full h-64 object-cover"
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+
+          {/* Desktop: Masonry Grid */}
+          <div className="hidden md:block">
+            <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 1024: 3 }}>
+              <Masonry gutter="24px">
+                {galleryImages.map((img, i) => (
+                  <ScrollReveal key={i}>
+                    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                      <img 
+                        src={img} 
+                        alt={`교육 현장 ${i + 1}`} 
+                        className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </Masonry>
+            </ResponsiveMasonry>
           </div>
         </div>
       </section>
