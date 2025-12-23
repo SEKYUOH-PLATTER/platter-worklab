@@ -1,0 +1,51 @@
+**Task:** Update UX Writing for the Corporate Homepage (B2B)
+
+**Context:**
+I have finalized the copy strategy for the main corporate page (`CorporatePage.tsx` or `Home.tsx`).
+The target audience is HR managers, and the tone should be "Professional Solver" (Clear, Impactful, Practical).
+
+**Action:**
+Please update the text content in the respective sections of the corporate page code.
+
+**1. Hero Section:**
+* **Headline:** "개발 지식 없는 우리 팀, 내일부터 바로 쓰는 AI 실무 교육"
+* **Subheadline:** "이론만 듣고 끝나는 강의는 멈추세요. AI와 데이터로 일의 밀도를 혁신하는 실무 연구소, 플래터 워크랩입니다."
+* **Button:** "무료 커리큘럼 제안받기"
+
+**2. Problem & Solution Section:**
+* **Section Title:** "왜 많은 기업 교육이 현업에 적용되지 않을까요?"
+* **Description:** "트렌드 특강만으로는 실무가 바뀌지 않습니다. 복잡한 코딩이나 어려운 이론은 뺍니다. 비개발자 직군이 당장 업무 효율을 높일 수 있는 **'검증된 방법론'**만 전달합니다."
+* **Keywords/Tags:** Change existing tags to: "#눈높이교육", "#맞춤커리큘럼", "#실무해결"
+
+**3. Curriculum/Service Section:**
+* **Section Title:** "우리 회사에 지금 필요한 교육은 무엇인가요?"
+* **Card 1 (AI Literacy):**
+    * Title: "전사 임직원 특강"
+    * Desc: "'AI가 일을 대신해주진 않지만, AI를 쓰는 사람이 당신을 대체합니다.' 생성형 AI의 기본 개념부터 업무 활용 마인드셋까지."
+* **Card 2 (Automation):**
+    * Title: "칼퇴를 부르는 업무 자동화"
+    * Desc: "엑셀 반복 작업, 지겨운 데이터 정리. Python과 챗봇을 활용해 버튼 하나로 끝내는 자동화 파이프라인 구축 실습."
+* **Card 3 (Data Analysis):**
+    * Title: "AI를 활용한 실전 데이터 분석"
+    * Desc: "데이터 분석가 없이도 괜찮습니다. 복잡한 툴 대신 AI를 활용해 기획자, 마케터가 스스로 데이터를 추출하고 인사이트를 찾는 실전 데이터 리터러시."
+
+**4. Reference Section (Client Logos):**
+* **English Label (Small):** "TRAINING REFERENCES"
+* **Section Title:** "주요 출강 레퍼런스"
+* **Description:** "플래터 워크랩은 스타트업부터 대기업까지, 다양한 현장의 실무자들과 호흡해 왔습니다."
+
+**5. Gallery Section:**
+* **Section Title:** "변화가 시작되는 강의실"
+* **Description:** "이론 주입식 교육이 아닙니다. 직접 실습하고 토론하며 결과물을 만들어내는 생생한 교육 현장입니다."
+
+**6. Reviews Section (formerly Testimonials):**
+* **English Label (Small):** "REAL REVIEWS" (Change from 'TESTIMONIALS')
+* **Section Title:** "담당자와 수강생이 증명하는 높은 만족도"
+* **Description:** "'실무에 바로 쓸 수 있어 좋았습니다', '강사님의 전달력이 탁월합니다' 쏟아지는 리얼 후기를 확인하세요."
+
+**7. CTA Section (Bottom):**
+* **Headline:** "교육이 끝난 다음 날, 팀의 퇴근 시간이 달라집니다."
+* **Subheadline:** "고민은 실행만 늦출 뿐입니다. 우리 기업 상황에 딱 맞는 맞춤형 커리큘럼을 무료로 제안받아보세요."
+* **Button:** "교육 문의하기"
+
+**Note:** Keep the existing layout and design, just replace the text strings.
