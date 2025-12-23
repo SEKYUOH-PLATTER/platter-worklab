@@ -395,11 +395,11 @@ const Home: React.FC = () => {
               <Masonry gutter="24px">
                 {galleryImages.map((img, i) => (
                   <ScrollReveal key={i}>
-                    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
+                    <div className="rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
                       <img 
                         src={img} 
                         alt={`교육 현장 ${i + 1}`} 
-                        className="w-full h-auto object-cover hover:scale-105 transition-transform duration-500"
+                        className="w-full h-auto object-cover block"
                       />
                     </div>
                   </ScrollReveal>
