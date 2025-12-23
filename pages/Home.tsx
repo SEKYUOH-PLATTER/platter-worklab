@@ -376,11 +376,11 @@ const Home: React.FC = () => {
             >
               {galleryImages.map((img, i) => (
                 <SwiperSlide key={i}>
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <div className="rounded-2xl overflow-hidden shadow-lg h-[250px]">
                     <img 
                       src={img} 
                       alt={`교육 현장 ${i + 1}`} 
-                      className="w-full h-64 object-cover"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </SwiperSlide>
@@ -388,15 +388,15 @@ const Home: React.FC = () => {
             </Swiper>
           </div>
 
-          {/* Desktop: CSS Columns Grid */}
-          <div className="hidden md:block columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+          {/* Desktop: Bento Grid Layout */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4">
             {galleryImages.map((img, i) => (
               <ScrollReveal key={i}>
-                <div className="break-inside-avoid mb-6 rounded-2xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-[1.02] hover:shadow-2xl">
+                <div className={`rounded-2xl overflow-hidden shadow-lg ${i < 3 ? 'h-[320px]' : 'h-[240px]'}`}>
                   <img 
                     src={img} 
                     alt={`교육 현장 ${i + 1}`} 
-                    className="w-full h-auto object-cover block"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
               </ScrollReveal>
