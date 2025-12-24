@@ -180,8 +180,8 @@ const Blog: React.FC = () => {
       
       <section className="bg-slate-900 pt-40 pb-24 px-4 text-center">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">인사이트 & 블로그</h1>
-          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">일의 밀도를 높이는 실무 연구소의 지식 창고입니다.</p>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">플래터 워크랩 AI & Data 기업교육 블그</h1>
+          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">일의 밀도를 높이는 AI와 데이터 인사이트를 확인해보세요.</p>
         </div>
       </section>
 

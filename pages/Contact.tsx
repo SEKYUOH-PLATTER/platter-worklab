@@ -140,7 +140,7 @@ const Contact: React.FC = () => {
             <h1 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">플래터 워크랩 <br />교육 문의</h1>
             <p className="text-slate-600 mb-12 leading-relaxed">
               도구 학습을 넘어, 일하는 관점을 바꾸는 실무 교육을 제안합니다. 
-              문의를 남겨주시면 기업 상황에 맞는 커리큘럼 샘플과 함께 24시간 이내에 연락 드리겠습니다.
+              문의를 남겨주시면 24시간 이내에 연락 드리겠습니다.
             </p>
 
             <div className="space-y-8">
