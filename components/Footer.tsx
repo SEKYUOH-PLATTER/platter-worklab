@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
             </div>
           </div>
           <div className="pt-8 border-t border-slate-800 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>© 2024 Platter WorkLab. All Rights Reserved.</p>
+            <p>© 2025 Platter WorkLab. All Rights Reserved.</p>
             <div className="flex gap-6">
               <button 
                 onClick={() => setShowTerms(true)}

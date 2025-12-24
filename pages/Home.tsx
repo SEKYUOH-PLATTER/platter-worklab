@@ -15,14 +15,13 @@ import {
   Search,
   CheckCircle,
   Quote,
-  Building2,
-  Building,
 } from "lucide-react";
 import SEO from "../components/SEO";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
+import Marquee from "react-fast-marquee";
 
 const ScrollReveal: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -154,24 +153,26 @@ const Home: React.FC = () => {
     },
   ];
 
-  const companies = [
-    "Company A",
-    "Enterprise B",
-    "Tech Solutions C",
-    "Global Inc D",
-    "Creative Studio E",
-    "Financial Group F",
-    "Innovate Co G",
-    "Future Works H",
+  const clientLogos = [
+    "/images/logos/logo_1.png",
+    "/images/logos/logo_2.png",
+    "/images/logos/logo_3.png",
+    "/images/logos/logo_4.png",
+    "/images/logos/logo_5.png",
+    "/images/logos/logo_6.png",
+    "/images/logos/logo_7.png",
+    "/images/logos/logo_8.png",
+    "/images/logos/logo_9.png",
+    "/images/logos/logo_10.png",
   ];
 
   const galleryImages = [
-    "/images/gallery/edu-2.png",
-    "/images/gallery/edu-1.png",
-    "/images/gallery/edu-5.png",
-    "/images/gallery/edu-3.png",
-    "/images/gallery/edu-6.png",
-    "/images/gallery/edu-4.png",
+    "/images/gallery/edu_1.jpg",
+    "/images/gallery/edu_2.jpg",
+    "/images/gallery/edu_3.jpg",
+    "/images/gallery/edu_4.jpg",
+    "/images/gallery/edu_5.png",
+    "/images/gallery/edu_6.jpg",
   ];
 
   const filteredCards =
@@ -477,21 +478,23 @@ const Home: React.FC = () => {
             </div>
           </ScrollReveal>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            {companies.map((company, i) => (
-              <ScrollReveal key={i}>
-                <div className="bg-slate-50 border border-slate-100 rounded-2xl h-32 flex flex-col items-center justify-center p-6 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:scale-105 hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 group cursor-default">
-                  <Building2
-                    size={32}
-                    className="text-slate-400 group-hover:text-blue-600 transition-colors mb-2"
-                  />
-                  <span className="text-xs font-bold text-slate-400 group-hover:text-slate-900 uppercase tracking-widest transition-colors">
-                    {company}
-                  </span>
-                </div>
-              </ScrollReveal>
+          <Marquee
+            speed={40}
+            gradient={true}
+            gradientColor="white"
+            gradientWidth={100}
+            pauseOnHover={true}
+          >
+            {clientLogos.map((logo, i) => (
+              <div key={i} className="mx-10 flex items-center justify-center">
+                <img
+                  src={logo}
+                  alt={`클라이언트 로고 ${i + 1}`}
+                  className="h-14 w-auto grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300"
+                />
+              </div>
             ))}
-          </div>
+          </Marquee>
         </div>
       </section>
 
