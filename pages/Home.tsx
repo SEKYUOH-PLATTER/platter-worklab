@@ -215,9 +215,9 @@ const Home: React.FC = () => {
               <div className="relative bg-blue-50 p-10 rounded-3xl border-2 border-blue-600 flex flex-col h-full shadow-2xl shadow-blue-600/10 overflow-hidden">
                 <div className="absolute top-6 right-6 bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">BEST CHOICE</div>
                 <div className="text-blue-600 font-bold mb-6 uppercase tracking-widest text-sm">Platter WorkLab</div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-8">플래터의 로직 중심 교육</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-8">플래터 워크랩의 실무 중심 교육</h3>
                 <ul className="space-y-5 mb-12">
-                  {["문제 정의 중심의 접근법", "실무 데이터를 활용한 과제", "지속 가능한 업무 루틴 설계", "AI를 통한 의사결정 방식 학습"].map((item, i) => (
+                  {["문제 정의 중심의 접근법", "실무 데이터를 활용한 과제", "수강생 실습을 통한 결과물 창출", "AI를 통한 의사결정 방식 학습"].map((item, i) => (
                     <li key={i} className="flex items-start gap-4 text-slate-700 font-bold">
                       <CheckCircle2 className="text-blue-600 shrink-0 mt-1" size={20} /> {item}
                     </li>
@@ -251,12 +251,12 @@ const Home: React.FC = () => {
               },
               { 
                 title: "칼퇴를 부르는 업무 자동화", 
-                desc: "엑셀 반복 작업, 지겨운 데이터 정리. Python과 챗봇을 활용해 버튼 하나로 끝내는 자동화 파이프라인 구축 실습.", 
+                desc: "지겨운 반복 작업, 엑셀 VBA와 Python, 챗봇을 활용해 버튼 하나로 끝내는 워크플로우 설계와 업무 자동화 파이프라인 구축 실습.", 
                 icon: <Zap className="text-blue-600" size={32} /> 
               },
               { 
                 title: "AI를 활용한 실전 데이터 분석", 
-                desc: "데이터 분석가 없이도 괜찮습니다. 복잡한 툴 대신 AI를 활용해 기획자, 마케터가 스스로 데이터를 추출하고 인사이트를 찾는 실전 데이터 리터러시.", 
+                desc: "데이터 분석가 없이도 괜찮습니다. 복잡한 툴 대신 AI를 활용해 스스로 데이터를 추출하고 인사이트를 찾는 실전 데이터 리터러시.", 
                 icon: <BarChart3 className="text-blue-600" size={32} /> 
               }
             ].map((item, i) => (
@@ -279,6 +279,7 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
             <div className="text-center mb-16">
+              <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">Curriculums</span>
               <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">검증된 실무 강화 커리큘럼</h2>
               <p className="text-slate-600 text-lg">업무 도메인별 최적화된 AI/데이터 리터러시 로드맵을 확인하세요.</p>
             </div>
@@ -341,8 +342,8 @@ const Home: React.FC = () => {
           <ScrollReveal>
             <div className="text-center mb-16">
               <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">Training References</span>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight">주요 출강 레퍼런스</h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">플래터 워크랩은 스타트업부터 대기업까지, 다양한 현장의 실무자들과 호흡해 왔습니다.</p>
+              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">주요 출강 레퍼런스</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">스타트업부터 대기업까지, 다양한 현장의 실무자들과 함께 성과를 만들고 있습니다.</p>
             </div>
           </ScrollReveal>
 
@@ -364,9 +365,9 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <ScrollReveal>
             <div className="text-center mb-16">
-              <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">Gallery</span>
-              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">변화가 시작되는 강의실</h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">이론 주입식 교육이 아닙니다. 직접 실습하고 토론하며 결과물을 만들어내는 생생한 교육 현장입니다.</p>
+              <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">WORKSHOP SKETCH</span>
+              <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">교육이 곧 성과의 시작이 됩니다</h2>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">실습 위주의 교육을 통해 참여자가 직접 성과를 만들어내는 교육을 제공합니다.</p>
             </div>
           </ScrollReveal>
 
@@ -419,7 +420,7 @@ const Home: React.FC = () => {
             <div className="text-center mb-16">
               <span className="text-blue-600 font-bold tracking-widest uppercase text-sm mb-4 block">Real Reviews</span>
               <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">담당자와 수강생이 증명하는 높은 만족도</h2>
-              <p className="text-lg text-slate-600 max-w-2xl mx-auto">'실무에 바로 쓸 수 있어 좋았습니다', '강사님의 전달력이 탁월합니다' 쏟아지는 리얼 후기를 확인하세요.</p>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto">교육의 퀄리티는 수강생의 후기로 증명합니다.</p>
             </div>
           </ScrollReveal>
 
