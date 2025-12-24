@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { Send, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { supabase } from '../lib/supabaseClient';
 import { ContactForm } from '../types';
@@ -138,40 +138,10 @@ const Contact: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-16">
           <div className="lg:w-1/3">
             <h1 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">플래터 워크랩 <br />교육 문의</h1>
-            <p className="text-slate-600 mb-12 leading-relaxed">
+            <p className="text-slate-600 leading-relaxed">
               도구 학습을 넘어, 일하는 관점을 바꾸는 실무 교육을 제안합니다. 
               문의를 남겨주시면 24시간 이내에 연락 드리겠습니다.
             </p>
-
-            <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600 shrink-0">
-                  <Mail size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900">Email</h3>
-                  <p className="text-slate-500">contact@platter.lab</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600 shrink-0">
-                  <Phone size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900">Phone</h3>
-                  <p className="text-slate-500">02-1234-5678</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-blue-600 shrink-0">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900">Address</h3>
-                  <p className="text-slate-500">서울시 강남구 테헤란로 123, 10층</p>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="lg:w-2/3 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-slate-100 relative">

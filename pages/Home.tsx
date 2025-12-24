@@ -617,7 +617,7 @@ const Home: React.FC = () => {
               팀의 퇴근 시간이 달라집니다.
             </h2>
             <p className="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
-              고민은 실행만 늦출 뿐입니다. <br className="hidden md:block" />
+              지금 바로 교육 문의를 신청하고 <br className="hidden md:block" />
               우리 기업 상황에 딱 맞는 맞춤형 커리큘럼을 무료로 제안받아보세요.
             </p>
             <div className="flex justify-center">

@@ -86,14 +86,6 @@ const Footer: React.FC = () => {
                 일의 밀도를 높이는 실무 연구소 플래터 워크랩.
               </p>
             </div>
-            <div className="text-sm">
-              <h3 className="text-white font-semibold mb-4">Contact</h3>
-              <ul className="space-y-1">
-                <li>Email: contact@platter.lab</li>
-                <li>Phone: 02-1234-5678</li>
-                <li>Address: 서울시 강남구 테헤란로 123</li>
-              </ul>
-            </div>
           </div>
           <div className="pt-8 border-t border-slate-800 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
             <p>© 2024 Platter WorkLab. All Rights Reserved.</p>
