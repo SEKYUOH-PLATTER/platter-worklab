@@ -135,21 +135,18 @@ const Home: React.FC = () => {
       name: "김민아",
       company: "한성테크",
       title: "마케팅 팀장",
-      img: "https://i.pravatar.cc/150?u=a",
     },
     {
       text: "비전공자인 저희 팀원들이 AI를 두려워하지 않고 자신의 업무 파트너로 인식하게 된 것이 가장 큰 수확입니다. 팀의 일하는 문화가 완전히 바뀌었습니다.",
       name: "이준석",
       company: "넥스트이노베이션",
       title: "COO",
-      img: "https://i.pravatar.cc/150?u=b",
     },
     {
       text: "데이터 분석이 이렇게 재밌을 수 있다는 걸 처음 알았습니다. 엑셀과 AI의 결합은 정말 강력하네요. 실무 위주의 예제가 특히 도움되었습니다.",
       name: "박지현",
       company: "스타트업 솔루션",
       title: "인사 담당자",
-      img: "https://i.pravatar.cc/150?u=c",
     },
   ];
 
@@ -486,7 +483,7 @@ const Home: React.FC = () => {
             pauseOnHover={true}
           >
             {clientLogos.map((logo, i) => (
-              <div key={i} className="mx-8 w-40 h-24 flex items-center justify-center">
+              <div key={i} className="mx-12 w-64 h-32 flex items-center justify-center">
                 <img
                   src={logo}
                   alt={`클라이언트 로고 ${i + 1}`}
@@ -589,11 +586,9 @@ const Home: React.FC = () => {
                     "{review.text}"
                   </p>
                   <div className="flex items-center gap-4 border-t border-slate-50 pt-8">
-                    <img
-                      src={review.img}
-                      alt={review.name}
-                      className="w-14 h-14 rounded-full border-2 border-blue-100 shadow-sm"
-                    />
+                    <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-2xl border-2 border-blue-100">
+                      👤
+                    </div>
                     <div>
                       <div className="font-bold text-slate-900">
                         {review.name}
