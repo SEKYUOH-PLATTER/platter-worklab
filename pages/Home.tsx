@@ -479,18 +479,18 @@ const Home: React.FC = () => {
           </ScrollReveal>
 
           <Marquee
-            speed={40}
+            speed={80}
             gradient={true}
             gradientColor="white"
             gradientWidth={100}
             pauseOnHover={true}
           >
             {clientLogos.map((logo, i) => (
-              <div key={i} className="mx-10 flex items-center justify-center">
+              <div key={i} className="mx-12 flex items-center justify-center">
                 <img
                   src={logo}
                   alt={`클라이언트 로고 ${i + 1}`}
-                  className="h-14 w-auto grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300"
+                  className="h-16 w-auto object-contain grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-300"
                 />
               </div>
             ))}
