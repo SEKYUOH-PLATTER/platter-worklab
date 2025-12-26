@@ -16,7 +16,7 @@ import {
   X,
   Calendar,
   User,
-  ExternalLink,
+  Pencil,
   MessageSquare,
   Loader2,
   Mail,
@@ -41,6 +41,7 @@ const Admin: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [editingPostId, setEditingPostId] = useState<number | null>(null);
   
   const quillRef = useRef<HTMLDivElement>(null);
   const quillInstance = useRef<Quill | null>(null);
@@ -125,31 +126,48 @@ const Admin: React.FC = () => {
     const cleanHtml = DOMPurify.sanitize(editorContent);
     
     try {
-      const { data, error } = await supabase
-        .from('posts')
-        .insert([
-          {
+      if (editingPostId) {
+        const { error } = await supabase
+          .from('posts')
+          .update({
             title,
             category,
             thumbnail_url: imageUrl,
             content: cleanHtml,
-            view_count: 0
-          }
-        ])
-        .select();
+          })
+          .eq('id', editingPostId);
 
-      if (error) throw error;
+        if (error) throw error;
+        alert('게시물이 성공적으로 수정되었습니다.');
+      } else {
+        const { error } = await supabase
+          .from('posts')
+          .insert([
+            {
+              title,
+              category,
+              thumbnail_url: imageUrl,
+              content: cleanHtml,
+              view_count: 0
+            }
+          ])
+          .select();
 
-      alert('게시물이 성공적으로 발행되었습니다.');
+        if (error) throw error;
+        alert('게시물이 성공적으로 발행되었습니다.');
+      }
+
       setTitle('');
       setImageUrl('');
       setCategory('AI 활용');
+      setEditingPostId(null);
       if (quillInstance.current) {
         quillInstance.current.root.innerHTML = '';
       }
       setActiveTab('posts');
+      fetchPosts();
     } catch (error: any) {
-      alert('게시 실패: ' + error.message);
+      alert('저장 실패: ' + error.message);
     } finally {
       setIsPublishing(false);
     }
@@ -170,6 +188,31 @@ const Admin: React.FC = () => {
     } catch (error: any) {
       alert('삭제 실패: ' + error.message);
     }
+  };
+
+  const handleEditPost = async (post: BlogPost) => {
+    setTitle(post.title);
+    setCategory(post.category);
+    setImageUrl(post.thumbnail_url || '');
+    setEditingPostId(post.id);
+    setActiveTab('new');
+    
+    setTimeout(() => {
+      if (quillInstance.current) {
+        quillInstance.current.root.innerHTML = post.content || '';
+      }
+    }, 100);
+  };
+
+  const handleCancelEdit = () => {
+    setTitle('');
+    setImageUrl('');
+    setCategory('AI 활용');
+    setEditingPostId(null);
+    if (quillInstance.current) {
+      quillInstance.current.root.innerHTML = '';
+    }
+    setActiveTab('posts');
   };
 
   const formatDate = (dateString: string) => {
@@ -401,8 +444,11 @@ const Admin: React.FC = () => {
                           <td className="px-8 py-6 text-sm text-slate-400 font-medium">{formatDate(post.created_at)}</td>
                           <td className="px-8 py-6 text-right">
                             <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                              <button className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm">
-                                <ExternalLink size={18} />
+                              <button 
+                                onClick={() => handleEditPost(post)}
+                                className="p-3 bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 rounded-xl transition-all shadow-sm"
+                              >
+                                <Pencil size={18} />
                               </button>
                               <button 
                                 onClick={() => handleDeletePost(post.id)}
@@ -480,11 +526,15 @@ const Admin: React.FC = () => {
             <div className="animate-fade-in">
               <header className="flex justify-between items-center mb-10">
                 <div>
-                  <h1 className="text-4xl font-bold text-slate-900 tracking-tight">새 블로그 게시물 작성</h1>
-                  <p className="text-slate-500 mt-2 text-lg">전문적인 인사이트를 전파하고 잠재 고객과 소통하세요.</p>
+                  <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+                    {editingPostId ? '게시물 수정' : '새 블로그 게시물 작성'}
+                  </h1>
+                  <p className="text-slate-500 mt-2 text-lg">
+                    {editingPostId ? '기존 게시물의 내용을 수정하세요.' : '전문적인 인사이트를 전파하고 잠재 고객과 소통하세요.'}
+                  </p>
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setActiveTab('posts')} className="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 transition-all active:scale-95">취소</button>
+                  <button onClick={handleCancelEdit} className="px-8 py-4 rounded-2xl font-bold text-slate-500 hover:bg-white border border-transparent hover:border-slate-200 transition-all active:scale-95">취소</button>
                   <button 
                     onClick={handlePublish}
                     disabled={isPublishing || !title}
@@ -492,11 +542,11 @@ const Admin: React.FC = () => {
                   >
                     {isPublishing ? (
                       <>
-                        <Loader2 size={20} className="animate-spin" /> 게시 중...
+                        <Loader2 size={20} className="animate-spin" /> {editingPostId ? '수정 중...' : '게시 중...'}
                       </>
                     ) : (
                       <>
-                        <Send size={20} /> 게시하기
+                        <Send size={20} /> {editingPostId ? '수정하기' : '게시하기'}
                       </>
                     )}
                   </button>
