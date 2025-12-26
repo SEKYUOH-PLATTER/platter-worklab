@@ -171,7 +171,7 @@ const Blog: React.FC = () => {
         </header>
         
         <div 
-          className="prose prose-lg max-w-none text-slate-700 leading-relaxed mb-16 ql-editor prose-p:my-3 prose-headings:mt-6 prose-headings:mb-3 [&_p:empty]:hidden [&_p>br:only-child]:hidden"
+          className="prose prose-lg max-w-none text-slate-700 leading-relaxed mb-16 ql-editor prose-p:my-3 prose-headings:mt-6 prose-headings:mb-3 [&_p:empty]:hidden [&_p>br:only-child]:hidden whitespace-pre-wrap"
           dangerouslySetInnerHTML={{ __html: cleanHtml }}
         />
 
