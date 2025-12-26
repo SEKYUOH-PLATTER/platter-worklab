@@ -124,7 +124,8 @@ const Blog: React.FC = () => {
   };
 
   if (selectedPost) {
-    const cleanHtml = DOMPurify.sanitize(selectedPost.content);
+    const contentWithBreaks = selectedPost.content.replace(/\n/g, '<br>');
+    const cleanHtml = DOMPurify.sanitize(contentWithBreaks);
     
     return (
       <article className="pt-32 pb-24 px-4 max-w-4xl mx-auto animate-fade-in">
@@ -171,7 +172,7 @@ const Blog: React.FC = () => {
         </header>
         
         <div 
-          className="prose prose-lg max-w-none text-slate-700 leading-relaxed mb-16 ql-editor prose-p:my-3 prose-headings:mt-6 prose-headings:mb-3 [&_p:empty]:hidden [&_p>br:only-child]:hidden whitespace-pre-wrap"
+          className="prose prose-lg max-w-none text-slate-700 leading-relaxed mb-16 ql-editor prose-p:my-3 prose-headings:mt-6 prose-headings:mb-3"
           dangerouslySetInnerHTML={{ __html: cleanHtml }}
         />
 
