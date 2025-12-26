@@ -181,7 +181,8 @@ const Home: React.FC = () => {
     <article className="w-full overflow-hidden">
       <SEO
         title="Platter WorkLab"
-        description="Practical growth research for PMs. 비전공자 실무팀을 위한 데이터 기반 일하는 방식 & AI 활용 워크숍."
+        description="개발 지식 없는 우리 팀, 내일부터 바로 쓰는 AI 실무 교육. 이론만 듣고 끝나는 강의는 멈추세요. AI와 데이터로 일의 밀도를 혁신하는 실무 연구소, 플래터 워크랩입니다."
+        canonical="https://www.platterworklab.com/"
       />
 
       {/* 1. Hero Section */}
