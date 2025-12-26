@@ -21,7 +21,8 @@ import {
   Loader2,
   Mail,
   Phone,
-  Building2
+  Building2,
+  Upload
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { BlogPost, Contact } from '../types';
@@ -42,9 +43,11 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [editingPostId, setEditingPostId] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const quillRef = useRef<HTMLDivElement>(null);
   const quillInstance = useRef<Quill | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -213,6 +216,42 @@ const Admin: React.FC = () => {
       quillInstance.current.root.innerHTML = '';
     }
     setActiveTab('posts');
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드할 수 있습니다.');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `public/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filePath);
+
+      setImageUrl(data.publicUrl);
+    } catch (error: any) {
+      alert('이미지 업로드 실패: ' + error.message);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -591,19 +630,60 @@ const Admin: React.FC = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Thumbnail Image URL</label>
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">썸네일 이미지</label>
+                      
+                      <input 
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="thumbnail-upload"
+                      />
+                      
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        className="w-full flex items-center justify-center gap-3 py-4 bg-slate-100 border-2 border-dashed border-slate-300 rounded-2xl text-slate-500 font-medium hover:bg-slate-50 hover:border-blue-400 hover:text-blue-600 transition-all disabled:opacity-50"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 size={20} className="animate-spin" /> 업로드 중...
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={20} /> 이미지 파일 선택
+                          </>
+                        )}
+                      </button>
+                      
+                      {imageUrl && (
+                        <div className="relative">
+                          <img 
+                            src={imageUrl} 
+                            alt="Thumbnail preview" 
+                            className="w-full h-32 object-cover rounded-xl border border-slate-200"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl('')}
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                      
                       <div className="relative">
                         <input 
                           value={imageUrl}
                           onChange={(e) => setImageUrl(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 pl-12 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white text-sm transition-all" 
-                          placeholder="https://images.unsplash.com/..." 
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-3 pl-10 outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white text-xs transition-all" 
+                          placeholder="또는 이미지 URL 직접 입력..." 
                         />
-                        <ImageIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <ImageIcon size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-1 ml-1 leading-relaxed">
-                        * Enter a direct image link (e.g., Unsplash). File upload feature will be implemented later.
-                      </p>
                     </div>
 
                     <div className="pt-6 border-t border-slate-50">
