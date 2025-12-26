@@ -25,8 +25,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import { BlogPost, Contact } from '../types';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { supabase } from '../lib/supabaseClient';
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
@@ -49,11 +48,14 @@ const Admin: React.FC = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/posts?limit=50`);
-      const data = await response.json();
-      if (data.success) {
-        setPosts(data.data || []);
-      }
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+      setPosts(data || []);
     } catch (error) {
       console.error('Failed to fetch posts:', error);
     } finally {
@@ -64,11 +66,13 @@ const Admin: React.FC = () => {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/contacts`);
-      const data = await response.json();
-      if (data.success) {
-        setContacts(data.data || []);
-      }
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setContacts(data || []);
     } catch (error) {
       console.error('Failed to fetch contacts:', error);
     } finally {
@@ -121,31 +125,29 @@ const Admin: React.FC = () => {
     const cleanHtml = DOMPurify.sanitize(editorContent);
     
     try {
-      const response = await fetch(`${API_URL}/api/posts`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          category,
-          thumbnail_url: imageUrl,
-          content: cleanHtml,
-        }),
-      });
+      const { data, error } = await supabase
+        .from('posts')
+        .insert([
+          {
+            title,
+            category,
+            thumbnail_url: imageUrl,
+            content: cleanHtml,
+            view_count: 0
+          }
+        ])
+        .select();
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (data.success) {
-        alert('게시물이 성공적으로 발행되었습니다.');
-        setTitle('');
-        setImageUrl('');
-        setCategory('AI 활용');
-        if (quillInstance.current) {
-          quillInstance.current.root.innerHTML = '';
-        }
-        setActiveTab('posts');
-      } else {
-        throw new Error(data.error);
+      alert('게시물이 성공적으로 발행되었습니다.');
+      setTitle('');
+      setImageUrl('');
+      setCategory('AI 활용');
+      if (quillInstance.current) {
+        quillInstance.current.root.innerHTML = '';
       }
+      setActiveTab('posts');
     } catch (error: any) {
       alert('게시 실패: ' + error.message);
     } finally {
@@ -157,17 +159,14 @@ const Admin: React.FC = () => {
     if (!confirm('정말 삭제하시겠습니까?')) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}`, {
-        method: 'DELETE',
-      });
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', id);
 
-      const data = await response.json();
-
-      if (data.success) {
-        setPosts(prev => prev.filter(p => p.id !== id));
-      } else {
-        throw new Error(data.error);
-      }
+      if (error) throw error;
+      
+      setPosts(prev => prev.filter(p => p.id !== id));
     } catch (error: any) {
       alert('삭제 실패: ' + error.message);
     }

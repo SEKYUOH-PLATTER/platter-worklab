@@ -7,8 +7,7 @@ import { ko } from 'date-fns/locale';
 import DOMPurify from 'dompurify';
 import { BlogPost } from '../types';
 import SEO from '../components/SEO';
-
-const API_URL = import.meta.env.VITE_API_URL || '';
+import { supabase } from '../lib/supabaseClient';
 
 const Blog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -27,18 +26,25 @@ const Blog: React.FC = () => {
     if (loading) return;
     setLoading(true);
     
+    const limit = 6;
+    const from = (pageNum - 1) * limit;
+    const to = from + limit - 1;
+    
     try {
-      const response = await fetch(`${API_URL}/api/posts?page=${pageNum}&limit=6`);
-      const data = await response.json();
+      const { data, error, count } = await supabase
+        .from('posts')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(from, to);
       
-      if (data.success) {
-        if (pageNum === 1) {
-          setPosts(data.data || []);
-        } else {
-          setPosts(prev => [...prev, ...(data.data || [])]);
-        }
-        setHasMore(data.hasMore);
+      if (error) throw error;
+      
+      if (pageNum === 1) {
+        setPosts(data || []);
+      } else {
+        setPosts(prev => [...prev, ...(data || [])]);
       }
+      setHasMore((count || 0) > from + (data?.length || 0));
     } catch (error) {
       console.error('Failed to fetch posts:', error);
     } finally {
@@ -49,12 +55,22 @@ const Blog: React.FC = () => {
 
   const fetchPost = async (id: number) => {
     try {
-      const response = await fetch(`${API_URL}/api/posts/${id}`);
-      const data = await response.json();
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single();
       
-      if (data.success) {
-        setSelectedPost(data.data);
+      if (error) throw error;
+      
+      if (data) {
+        setSelectedPost(data);
         window.scrollTo(0, 0);
+        
+        await supabase
+          .from('posts')
+          .update({ view_count: (data.view_count || 0) + 1 })
+          .eq('id', id);
       }
     } catch (error) {
       console.error('Failed to fetch post:', error);
