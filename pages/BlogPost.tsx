@@ -115,9 +115,10 @@ const BlogPost: React.FC = () => {
     <div className="bg-slate-50 min-h-screen">
       <SEO 
         title={post.title} 
-        description={post.content.substring(0, 160).replace(/<[^>]*>/g, '')} 
+        description={post.content.substring(0, 150).replace(/<[^>]*>/g, '').replace(/\n/g, ' ').trim() + '...'} 
         ogImage={post.thumbnail_url}
         ogType="article"
+        canonical={`https://www.platterworklab.com/#/blog/${id}`}
       />
       
       <article className="pt-32 pb-24 px-4 max-w-4xl mx-auto animate-fade-in">
