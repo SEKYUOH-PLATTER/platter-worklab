@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import * as Sentry from '@sentry/react';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
 import App from './App';
 
 Sentry.init({
@@ -9,6 +11,13 @@ Sentry.init({
   integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
 });
+
+if (import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
+  posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
+    api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+    person_profiles: 'identified_only',
+  });
+}
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -18,8 +27,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
+    <PostHogProvider client={posthog}>
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    </PostHogProvider>
   </React.StrictMode>
 );

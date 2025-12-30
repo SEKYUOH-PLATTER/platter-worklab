@@ -61,3 +61,9 @@ externalPort = 3000
 [[ports]]
 localPort = 5002
 externalPort = 3002
+
+[userenv]
+
+[userenv.shared]
+VITE_PUBLIC_POSTHOG_KEY = "phc_l8hyeSbM93eXa5PMUwchtoTZw8nJlfvgNlqNb8PeF8V"
+VITE_PUBLIC_POSTHOG_HOST = "https://us.i.posthog.com"
