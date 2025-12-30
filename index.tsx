@@ -12,13 +12,20 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-if (import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
-  posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
-    api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
-    person_profiles: 'identified_only',
-  });
-  (window as any).posthog = posthog;
-}
+// if (import.meta.env.VITE_PUBLIC_POSTHOG_KEY) {
+//   posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
+//     api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+//     person_profiles: 'identified_only',
+//   });
+//   (window as any).posthog = posthog;
+// }
+
+posthog.init("phc_l8hyeSbM93eXa5PMUwchtoTZw8nJlfvgNlqNb8PeF8V", {
+  api_host: "https://us.i.posthog.com", // 또는 가지고 계신 주소
+  person_profiles: 'identified_only',
+});
+
+(window as any).posthog = posthog;
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
