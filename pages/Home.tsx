@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useFeatureFlagEnabled } from "posthog-js/react";
 import {
   ArrowRight,
   BarChart3,
@@ -38,6 +39,7 @@ const ScrollReveal: React.FC<{ children: React.ReactNode }> = ({
 
 const Home: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState("전체");
+  const isHeroTestEnabled = useFeatureFlagEnabled("main-hero-test");
 
   const curriculumCategories = [
     "전체",
@@ -200,12 +202,21 @@ const Home: React.FC = () => {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-600/20 text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
               <Zap size={14} /> Transform Your Team with AI
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-[1.1]">
-              개발 지식 없는 우리 팀, <br className="hidden md:block" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
-                내일부터 바로 쓰는 AI 실무 교육
-              </span>
-            </h1>
+            {isHeroTestEnabled ? (
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-[1.1]">
+                도입만 하고 방치된 AI, <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                  이제는 성과로 증명할 시간입니다
+                </span>
+              </h1>
+            ) : (
+              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-[1.1]">
+                개발 지식 없는 우리 팀, <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+                  내일부터 바로 쓰는 AI 실무 교육
+                </span>
+              </h1>
+            )}
             <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
               이론만 듣고 끝나는 강의는 멈추세요.{" "}
               <br className="hidden md:block" />
