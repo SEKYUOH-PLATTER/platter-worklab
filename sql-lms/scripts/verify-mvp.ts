@@ -73,9 +73,10 @@ console.log('\n2. Seed Problems Count')
 
 const seedRaw = readFile('scripts/seed.ts')
 
-// Count SEED_PROBLEMS array entries (rough: count title: lines)
-const seedTitleMatches = seedRaw.match(/title:/g) || []
-const seedCount = seedTitleMatches.length
+// Count SEED_PROBLEMS entries — one solution_sql per problem (title: also
+// appears on datasets/chapters, so it over-counts; solution_sql is 1:1).
+const seedSolutionMatches = seedRaw.match(/solution_sql:/g) || []
+const seedCount = seedSolutionMatches.length
 const extraCount = EXTRA_PROBLEMS.length
 const extra2Count = EXTRA_PROBLEMS2.length
 const totalCount = seedCount + extraCount + extra2Count
