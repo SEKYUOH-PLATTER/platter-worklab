@@ -10,6 +10,7 @@ import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { config } from 'dotenv'
 import { EXTRA_PROBLEMS } from './problems-extra.js'
+import { EXTRA_PROBLEMS2 } from './problems-extra2.js'
 
 config({ path: '.env.local' })
 
@@ -627,6 +628,27 @@ async function main() {
     extraInserted++
   }
   console.log(`  ✓ ${extraInserted}개 추가 문제`)
+
+  // 5. 추가 문제 2 삽입
+  console.log('📝 추가 문제 2 삽입 중...')
+  let extra2Inserted = 0
+  for (const p of EXTRA_PROBLEMS2) {
+    const dataset_id = datasetMap[p.dataset_domain]
+    const chapter_id = p.chapter_num ? chapterMap[p.chapter_num] : null
+    if (!dataset_id) { console.error(`  ✗ 데이터셋 없음: ${p.dataset_domain} [${p.title}]`); continue }
+    const { solution_sql, dataset_domain, chapter_num, ...rest } = p
+    const { data: prob, error: pErr } = await sb
+      .from('problems')
+      .insert({ ...rest, dataset_id, chapter_id })
+      .select('id')
+      .single()
+    if (pErr) { console.error(`  ✗ 추가 문제2 오류 [${p.title}]:`, pErr.message); continue }
+    if (solution_sql) {
+      await sb.from('problem_solutions').insert({ problem_id: prob.id, solution_sql })
+    }
+    extra2Inserted++
+  }
+  console.log(`  ✓ ${extra2Inserted}개 추가 문제 2`)
 
   console.log('\n✅ 시드 완료!')
 }
