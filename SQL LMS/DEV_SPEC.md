@@ -56,12 +56,38 @@
 /admin/problems            → 문제 목록 관리
 /admin/problems/new        → 문제 등록
 /admin/problems/:id/edit   → 문제 수정
+/admin/datasets            → 도메인 데이터셋 관리
+/admin/datasets/new        → 데이터셋 등록
+/admin/datasets/:id/edit   → 데이터셋 수정
 /admin/whitelist           → 수강생 이메일 관리
 ```
 
 ---
 
 ## 4. DB 스키마
+
+### 데이터셋 관리 전략: 도메인 공용 데이터셋 (Option B)
+
+예제 데이터셋은 문제마다 독립적으로 갖지 않고, **도메인 단위 공용 데이터셋**을 별도 테이블로 관리한다.
+
+```
+datasets 테이블 (도메인별 기본 DDL + INSERT)
+    ↓ dataset_id로 참조
+problems 테이블
+    └─ extra_setup_sql: 이 문제에만 필요한 추가 테이블 (선택)
+```
+
+**데이터 로딩 순서 (문제 풀이 시)**
+1. `datasets.setup_sql` 실행 → 도메인 공용 테이블 생성 + 데이터 삽입
+2. `problems.extra_setup_sql` 실행 (있을 경우) → 문제 전용 추가 테이블 생성
+3. 학생 쿼리 실행
+
+**장점**
+- 같은 도메인의 여러 문제가 동일한 데이터를 공유 → 현실감 있는 학습
+- 데이터 수정 시 `datasets`만 고치면 해당 도메인 전체 문제에 반영
+- 강사가 문제 등록 시 도메인 데이터셋 선택 후 추가 테이블만 작성하면 됨
+
+---
 
 ### 4-1. email_whitelist
 
@@ -73,7 +99,24 @@ CREATE TABLE email_whitelist (
 );
 ```
 
-### 4-2. chapters
+### 4-2. datasets (도메인 공용 데이터셋)
+
+```sql
+CREATE TABLE datasets (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  domain      text NOT NULL UNIQUE,
+  -- 'ecommerce' | 'saas' | 'fintech' | 'logistics' | 'media' | 'hr' | 'community' | 'syntax_common'
+  title       text NOT NULL,       -- 예: '이커머스 기본 데이터셋'
+  description text,                -- 테이블 구성 설명 (어드민용)
+  setup_sql   text NOT NULL,       -- DDL + INSERT (클라이언트 전송 OK)
+  created_at  timestamptz DEFAULT now(),
+  updated_at  timestamptz DEFAULT now()
+);
+```
+
+> `syntax_common`: 문법 챕터(Track A)용 범용 데이터셋 (students, employees, orders 등 단순 테이블)
+
+### 4-3. chapters
 
 ```sql
 CREATE TABLE chapters (
@@ -86,37 +129,39 @@ CREATE TABLE chapters (
 );
 ```
 
-### 4-3. problems
+### 4-4. problems
 
 ```sql
 CREATE TABLE problems (
   id                     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   chapter_id             uuid REFERENCES chapters(id),
+  dataset_id             uuid REFERENCES datasets(id),  -- 도메인 공용 데이터셋 참조
   track                  text NOT NULL CHECK (track IN ('syntax', 'case')),
-  domain                 text,   -- 'ecommerce' | 'saas' | 'fintech' | 'logistics' | 'media' | 'hr' | 'community'
+  domain                 text,
   difficulty             text NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
   title                  text NOT NULL,
-  description            text,   -- 마크다운
-  schema_description     text,   -- 학생에게 표시되는 스키마 설명
-  setup_sql              text,   -- DDL + INSERT (클라이언트 전송 OK)
+  description            text,        -- 마크다운
+  extra_setup_sql        text,        -- 이 문제에만 필요한 추가 DDL/INSERT (선택, 클라이언트 전송 OK)
   grading_mode           text DEFAULT 'unordered' CHECK (grading_mode IN ('ordered', 'unordered')),
-  expected_input_columns jsonb,  -- Track B: 정답 입력 컬럼 목록 (피드백용)
+  expected_input_columns jsonb,       -- Track B: 정답 입력 컬럼 목록 (피드백용)
   tags                   text[],
   created_at             timestamptz DEFAULT now()
 );
 ```
 
-### 4-4. problem_solutions
+> `setup_sql` 제거 → `dataset_id`(공용) + `extra_setup_sql`(문제 전용)으로 분리
+
+### 4-5. problem_solutions
 
 ```sql
--- solution_sql을 분리하여 admin-only RLS 적용
+-- solution_sql을 분리하여 admin-only RLS 적용 (클라이언트 미노출)
 CREATE TABLE problem_solutions (
   problem_id   uuid PRIMARY KEY REFERENCES problems(id) ON DELETE CASCADE,
   solution_sql text NOT NULL
 );
 ```
 
-### 4-5. submissions
+### 4-6. submissions
 
 ```sql
 CREATE TABLE submissions (
@@ -129,7 +174,7 @@ CREATE TABLE submissions (
 );
 ```
 
-### 4-6. user_profiles
+### 4-7. user_profiles
 
 ```sql
 CREATE TABLE user_profiles (
@@ -167,6 +212,22 @@ CREATE POLICY "problems_whitelist_read" ON problems
 
 -- 어드민만 수정/삭제 가능
 CREATE POLICY "problems_admin_write" ON problems
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_admin = true)
+  );
+```
+
+### datasets
+
+```sql
+-- 화이트리스트 사용자는 조회 가능 (setup_sql은 클라이언트 전송 허용)
+CREATE POLICY "datasets_whitelist_read" ON datasets
+  FOR SELECT USING (
+    auth.email() IN (SELECT email FROM email_whitelist)
+  );
+
+-- 어드민만 추가/수정/삭제 가능
+CREATE POLICY "datasets_admin_write" ON datasets
   FOR ALL USING (
     EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND is_admin = true)
   );
@@ -223,14 +284,17 @@ POST /functions/v1/grade_submission
 ### 채점 로직
 
 ```
-1. problem_id로 setup_sql, solution_sql, grading_mode 조회 (service key)
-2. sql.js 인스턴스 생성 → setup_sql 실행 (테이블 생성 + 데이터 삽입)
-3. submitted_sql 실행 → actual_rows 추출
-4. solution_sql 실행 → expected_rows 추출
-5. grading_mode에 따라 비교:
+1. problem_id로 dataset_id, extra_setup_sql, solution_sql, grading_mode 조회 (service key)
+2. dataset_id로 datasets.setup_sql 조회 (도메인 공용 데이터셋)
+3. sql.js 인스턴스 생성
+   → datasets.setup_sql 실행 (공용 테이블 + 데이터)
+   → problems.extra_setup_sql 실행 (문제 전용 추가 테이블, 있을 경우)
+4. submitted_sql 실행 → actual_rows 추출
+5. solution_sql 실행 → expected_rows 추출
+6. grading_mode에 따라 비교:
    - unordered: 양쪽 행을 정렬 후 JSON 비교
    - ordered: 순서 포함 직접 비교
-6. is_correct 반환
+7. is_correct 반환
 ```
 
 ---
@@ -247,6 +311,8 @@ src/
 │       ├── AdminLayout.tsx
 │       ├── Problems.tsx       # 문제 목록
 │       ├── ProblemForm.tsx    # 문제 등록/수정
+│       ├── Datasets.tsx       # 도메인 데이터셋 목록
+│       ├── DatasetForm.tsx    # 데이터셋 등록/수정 (setup_sql 편집)
 │       └── Whitelist.tsx      # 수강생 관리
 │
 ├── components/
@@ -380,6 +446,40 @@ src/
 4. **학습 대시보드** — 문제 목록 + 필터
 5. **Track A 문제 풀이** — 에디터 + sql.js 실행 + Edge Function 채점
 6. **Track B 문제 풀이** — 스키마 탐색기 + 컬럼 선택 + 아웃풋 그리드 + 프롬프트 복사
-7. **어드민** — 문제 CRUD + 수강생 화이트리스트 관리
-8. **문제 콘텐츠 등록** — 문법 챕터 + 도메인별 케이스 문제 입력
-9. **배포** — 커스텀 도메인 연결 + 최종 테스트
+7. **어드민** — 문제 CRUD + 데이터셋 관리 + 수강생 화이트리스트 관리
+8. **도메인 데이터셋 구축** — 7개 도메인 공용 데이터셋 작성 후 어드민 등록
+9. **문제 콘텐츠 등록** — 문법 챕터 + 도메인별 케이스 문제 입력
+10. **배포** — 커스텀 도메인 연결 + 최종 테스트
+
+---
+
+## 13. 콘텐츠 작업 순서 (개발 완료 후)
+
+### Step 1. 도메인 공용 데이터셋 작성 (7개)
+
+어드민 `/admin/datasets`에서 등록. 각 도메인당 아래 포함:
+- 현실적인 테이블 구조 (컬럼명, 타입, 관계)
+- 충분한 샘플 데이터 (최소 50~100행 수준)
+- 시나리오를 뒷받침할 다양한 케이스 (날짜 범위, 상태값 분포 등)
+
+| 도메인 | 주요 테이블 |
+|---|---|
+| ecommerce | orders, order_items, customers, products, categories, reviews |
+| saas | users, events, sessions, subscriptions, features |
+| fintech | accounts, transactions, loans, repayments, customers |
+| logistics | warehouses, inventory, shipments, suppliers, orders |
+| media | content, views, creators, channels, engagements |
+| hr | employees, departments, salaries, performance, job_history |
+| community | users, posts, comments, likes, follows, reports |
+| syntax_common | students, scores, employees, departments, products, orders (단순 구조) |
+
+### Step 2. 문법 챕터 문제 등록 (Track A, ~50문제)
+
+- 챕터당 3~5문제
+- dataset_id: `syntax_common`
+- extra_setup_sql: 해당 문제에만 필요한 추가 데이터 (필요 시)
+
+### Step 3. 케이스 문제 등록 (Track B, ~210문제)
+
+- 도메인 데이터셋 선택 후 문제 설명 + 정답 쿼리 작성
+- 문제별 extra_setup_sql은 도메인 기본 데이터셋에 없는 추가 테이블이 필요한 경우만 작성
