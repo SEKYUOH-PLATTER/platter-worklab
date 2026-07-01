@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "seed": "tsx scripts/seed.ts",
+    "test:grading": "tsx scripts/test-grading.ts",
+    "verify:mvp": "tsx scripts/verify-mvp.ts",
     "postinstall": "cp node_modules/sql.js/dist/sql-wasm.wasm public/ 2>/dev/null || true"
   },
   "dependencies": {
