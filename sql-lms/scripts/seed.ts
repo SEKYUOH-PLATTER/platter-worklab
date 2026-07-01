@@ -9,6 +9,7 @@ import { readFileSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { config } from 'dotenv'
+import { EXTRA_PROBLEMS } from './problems-extra.js'
 
 config({ path: '.env.local' })
 
@@ -546,7 +547,7 @@ function buildProblems(
       chapter_id: null, difficulty: 'hard', grading_mode: 'ordered',
       tags: ['window', 'rank', 'join'],
       description: `카테고리별로 게시글을 조회수(view_cnt) 기준 내림차순 순위(rank)를 매기세요.\n- username, title, category, view_cnt, rank 출력\n- rank가 1인 게시글만 조회하세요.`,
-      solution_sql: `SELECT u.username, p.title, p.category, p.view_cnt, RANK() OVER (PARTITION BY p.category ORDER BY p.view_cnt DESC) AS rnk FROM posts p JOIN users u ON p.user_id = u.id WHERE RANK() OVER (PARTITION BY p.category ORDER BY p.view_cnt DESC) = 1;`,
+      solution_sql: `WITH ranked AS (SELECT u.username, p.title, p.category, p.view_cnt, RANK() OVER (PARTITION BY p.category ORDER BY p.view_cnt DESC) AS rnk FROM posts p JOIN users u ON p.user_id = u.id) SELECT username, title, category, view_cnt, rnk FROM ranked WHERE rnk = 1;`,
     },
   ]
 }
@@ -571,9 +572,15 @@ async function main() {
   const datasetMap: Record<string, string> = {}
   for (const ds of DATASETS) {
     const setup_sql = readSql(ds.file)
+    const { data: existing } = await sb.from('datasets').select('id').eq('title', ds.title).maybeSingle()
+    if (existing) {
+      datasetMap[ds.domain] = existing.id
+      console.log(`  ↩ ${ds.domain} (기존)`)
+      continue
+    }
     const { data, error } = await sb
       .from('datasets')
-      .upsert({ domain: ds.domain, title: ds.title, description: ds.description, setup_sql }, { onConflict: 'title' })
+      .insert({ domain: ds.domain, title: ds.title, description: ds.description, setup_sql })
       .select('id, domain')
       .single()
     if (error) { console.error(`데이터셋 오류 [${ds.domain}]:`, error); continue }
@@ -599,6 +606,27 @@ async function main() {
     inserted++
   }
   console.log(`  ✓ ${inserted}개 문제`)
+
+  // 4. 추가 문제 삽입
+  console.log('📝 추가 문제 삽입 중...')
+  let extraInserted = 0
+  for (const p of EXTRA_PROBLEMS) {
+    const dataset_id = datasetMap[p.dataset_domain]
+    const chapter_id = p.chapter_num ? chapterMap[p.chapter_num] : null
+    if (!dataset_id) { console.error(`  ✗ 데이터셋 없음: ${p.dataset_domain} [${p.title}]`); continue }
+    const { solution_sql, dataset_domain, chapter_num, ...rest } = p
+    const { data: prob, error: pErr } = await sb
+      .from('problems')
+      .insert({ ...rest, dataset_id, chapter_id })
+      .select('id')
+      .single()
+    if (pErr) { console.error(`  ✗ 추가 문제 오류 [${p.title}]:`, pErr.message); continue }
+    if (solution_sql) {
+      await sb.from('problem_solutions').insert({ problem_id: prob.id, solution_sql })
+    }
+    extraInserted++
+  }
+  console.log(`  ✓ ${extraInserted}개 추가 문제`)
 
   console.log('\n✅ 시드 완료!')
 }
