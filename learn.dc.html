@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>body{margin:0}</style>
+</helmet>
+<div data-screen-label="문제 목록" style="min-height:100vh;background:#F7F8FA;font-family:'Pretendard Variable',Pretendard,-apple-system,'Noto Sans KR',sans-serif;color:#18181B">
+
+  <header style="height:56px;background:#fff;border-bottom:1px solid #E7E8EC;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:800">SQL</div>
+      <span style="font-size:15px;font-weight:700;letter-spacing:-.01em">AI로 배우는 원데이 SQL</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span style="font-size:13px;color:#6B7280">student@example.com</span>
+      <a href="login.dc.html" style="font-size:13px;font-weight:500;color:#4B5563;text-decoration:none;border:1px solid #D8DAE0;border-radius:8px;padding:7px 14px;background:#fff" style-hover="background:#F3F4F6">로그아웃</a>
+    </div>
+  </header>
+
+  <div style="display:flex;max-width:1120px;margin:0 auto;gap:32px;padding:32px 24px;box-sizing:border-box;align-items:flex-start">
+
+    <aside style="width:224px;flex:none;display:flex;flex-direction:column;gap:28px;position:sticky;top:88px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:.06em">트랙</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <sc-for list="{{ trackItems }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.name }}<span style="{{ t.countStyle }}">{{ t.count }}</span></button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:.06em">도메인</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ domainChips }}" as="d" hint-placeholder-count="7">
+            <button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:.06em">난이도</div>
+        <div style="display:flex;gap:6px">
+          <sc-for list="{{ diffChips }}" as="d" hint-placeholder-count="3">
+            <button onClick="{{ d.onClick }}" style="{{ d.style }}">{{ d.name }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <sc-if value="{{ hasFilter }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ resetFilters }}" style="align-self:flex-start;background:none;border:none;padding:0;font-size:13px;color:#4F46E5;font-weight:500;cursor:pointer;font-family:inherit">필터 초기화</button>
+      </sc-if>
+    </aside>
+
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;padding:20px 24px;display:flex;flex-direction:column;gap:12px;box-shadow:0 1px 2px rgba(16,24,40,.04)">
+        <div style="display:flex;align-items:baseline;justify-content:space-between">
+          <span style="font-size:14px;font-weight:600;color:#374151">나의 진행률</span>
+          <span style="font-size:14px;color:#6B7280">해결 <strong style="color:#4F46E5;font-weight:700">12</strong> / 261문제</span>
+        </div>
+        <div style="height:8px;background:#EEF0F3;border-radius:999px;overflow:hidden">
+          <div style="width:4.6%;height:100%;background:#4F46E5;border-radius:999px"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px">
+        <span style="font-size:13px;color:#6B7280">문제 <strong style="color:#374151">{{ count }}</strong>개</span>
+        <span style="font-size:13px;color:#9CA3AF">기본 순서</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ problems }}" as="p" hint-placeholder-count="6">
+          <a href="problem.dc.html" style="background:#fff;border:1px solid #E7E8EC;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit" style-hover="border-color:#C7D2FE;box-shadow:0 2px 8px rgba(16,24,40,.06)">
+            <span style="{{ p.checkStyle }}">{{ p.checkChar }}</span>
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:15px;font-weight:600;color:#18181B;letter-spacing:-.01em">{{ p.title }}</span>
+              <span style="display:flex;align-items:center;gap:6px">
+                <span style="{{ p.diffStyle }}">{{ p.difficulty }}</span>
+                <span style="font-size:12px;font-weight:500;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:3px 8px">{{ p.track }}</span>
+                <sc-if value="{{ p.domain }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-size:12px;font-weight:500;color:#4338CA;background:#EEF2FF;border-radius:6px;padding:3px 8px">{{ p.domain }}</span>
+                </sc-if>
+              </span>
+            </span>
+            <span style="color:#C4C8CF;font-size:16px">›</span>
+          </a>
+        </sc-for>
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border:1px dashed #D8DAE0;border-radius:10px;padding:40px;text-align:center;font-size:14px;color:#9CA3AF">조건에 맞는 문제가 없습니다</div>
+        </sc-if>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { track: '전체', domains: [], difficulty: null };
+
+  data() {
+    return [
+      { title: 'SELECT로 원하는 컬럼만 뽑기', track: '문법 실습', domain: null, difficulty: 'Easy', solved: true },
+      { title: 'WHERE로 조건 걸어 필터링하기', track: '문법 실습', domain: null, difficulty: 'Easy', solved: true },
+      { title: 'ORDER BY로 정렬하고 LIMIT 걸기', track: '문법 실습', domain: null, difficulty: 'Easy', solved: true },
+      { title: 'GROUP BY로 집계하기', track: '문법 실습', domain: null, difficulty: 'Medium', solved: true },
+      { title: 'JOIN으로 두 테이블 합치기', track: '문법 실습', domain: null, difficulty: 'Medium', solved: false },
+      { title: '서브쿼리로 조건 만들기', track: '문법 실습', domain: null, difficulty: 'Hard', solved: false },
+      { title: '월별 매출 추이 구하기', track: '실전 케이스', domain: '이커머스', difficulty: 'Medium', solved: true },
+      { title: '재구매율 계산하기', track: '실전 케이스', domain: '이커머스', difficulty: 'Hard', solved: false },
+      { title: '월간 활성 사용자(MAU) 집계', track: '실전 케이스', domain: 'SaaS', difficulty: 'Medium', solved: false },
+      { title: '플랜별 이탈률 비교', track: '실전 케이스', domain: 'SaaS', difficulty: 'Hard', solved: false },
+      { title: '이상 거래 탐지 후보 찾기', track: '실전 케이스', domain: '핀테크', difficulty: 'Hard', solved: false },
+      { title: '지연 배송 비율 구하기', track: '실전 케이스', domain: '물류', difficulty: 'Easy', solved: true },
+      { title: '콘텐츠별 평균 시청 시간', track: '실전 케이스', domain: '미디어', difficulty: 'Medium', solved: false },
+      { title: '부서별 평균 근속연수', track: '실전 케이스', domain: 'HR', difficulty: 'Easy', solved: false },
+      { title: '주간 신규 게시글 수 추이', track: '실전 케이스', domain: '커뮤니티', difficulty: 'Easy', solved: false }
+    ];
+  }
+
+  renderVals() {
+    const DIFF = {
+      Easy:   { c: '#15803D', bg: '#ECFDF5' },
+      Medium: { c: '#B45309', bg: '#FFFBEB' },
+      Hard:   { c: '#B91C1C', bg: '#FEF2F2' }
+    };
+    const all = this.data();
+    const { track, domains, difficulty } = this.state;
+
+    const filtered = all.filter(p =>
+      (track === '전체' || p.track === track) &&
+      (domains.length === 0 || (p.domain && domains.includes(p.domain))) &&
+      (!difficulty || p.difficulty === difficulty)
+    );
+
+    const problems = filtered.map(p => ({
+      ...p,
+      checkChar: p.solved ? '✓' : '',
+      checkStyle: p.solved
+        ? { width: '22px', height: '22px', borderRadius: '999px', background: '#16A34A', color: '#fff', fontSize: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }
+        : { width: '22px', height: '22px', borderRadius: '999px', border: '1.5px solid #D8DAE0', boxSizing: 'border-box', flex: 'none' },
+      diffStyle: { fontSize: '12px', fontWeight: 600, color: DIFF[p.difficulty].c, background: DIFF[p.difficulty].bg, borderRadius: '6px', padding: '3px 8px' }
+    }));
+
+    const trackItems = ['전체', '문법 실습', '실전 케이스'].map(name => {
+      const sel = track === name;
+      const count = name === '전체' ? all.length : all.filter(p => p.track === name).length;
+      return {
+        name, count,
+        onClick: () => this.setState({ track: name }),
+        style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', textAlign: 'left', padding: '8px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: sel ? 600 : 500, background: sel ? '#EEF2FF' : 'transparent', color: sel ? '#4338CA' : '#4B5563' },
+        countStyle: { fontSize: '12px', fontWeight: 500, color: sel ? '#6366F1' : '#9CA3AF' }
+      };
+    });
+
+    const chip = sel => ({ padding: '6px 11px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12.5px', fontWeight: sel ? 600 : 500, border: '1px solid ' + (sel ? '#C7D2FE' : '#E1E3E8'), background: sel ? '#EEF2FF' : '#fff', color: sel ? '#4338CA' : '#4B5563' });
+
+    const domainChips = ['이커머스', 'SaaS', '핀테크', '물류', '미디어', 'HR', '커뮤니티'].map(name => ({
+      name,
+      style: chip(domains.includes(name)),
+      onClick: () => this.setState(s => ({ domains: s.domains.includes(name) ? s.domains.filter(d => d !== name) : [...s.domains, name] }))
+    }));
+
+    const diffChips = ['Easy', 'Medium', 'Hard'].map(name => ({
+      name,
+      style: chip(difficulty === name),
+      onClick: () => this.setState(s => ({ difficulty: s.difficulty === name ? null : name }))
+    }));
+
+    return {
+      problems, trackItems, domainChips, diffChips,
+      count: filtered.length,
+      isEmpty: filtered.length === 0,
+      hasFilter: track !== '전체' || domains.length > 0 || !!difficulty,
+      resetFilters: () => this.setState({ track: '전체', domains: [], difficulty: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

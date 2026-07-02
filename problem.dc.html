@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>body{margin:0}</style>
+</helmet>
+<div data-screen-label="문제 풀이" style="min-height:100vh;background:#F7F8FA;font-family:'Pretendard Variable',Pretendard,-apple-system,'Noto Sans KR',sans-serif;color:#18181B">
+
+  <header style="background:#fff;border-bottom:1px solid #E7E8EC;padding:14px 24px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;z-index:10">
+    <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#9CA3AF">
+      <a href="learn.dc.html" style="color:#6B7280;text-decoration:none" style-hover="color:#4F46E5">문제 목록</a>
+      <span>/</span><span>실전 케이스</span><span>/</span><span style="color:#4B5563">이커머스</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <h1 style="margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em">월별 매출 추이 구하기</h1>
+      <span style="font-size:12px;font-weight:600;color:#B45309;background:#FFFBEB;border-radius:6px;padding:3px 9px">Medium</span>
+    </div>
+  </header>
+
+  <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;max-width:1240px;margin:0 auto;padding:20px 24px 48px;box-sizing:border-box;align-items:start">
+
+    <aside style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);position:sticky;top:96px;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid #F0F1F4;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13.5px;font-weight:700">스키마 탐색기</span>
+        <span style="font-size:11.5px;color:#9CA3AF">ecommerce_demo</span>
+      </div>
+      <div style="display:flex;flex-direction:column;padding:8px 0">
+        <sc-for list="{{ tables }}" as="tbl" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 16px">
+              <span style="width:16px;height:16px;border-radius:4px;background:#EEF2FF;color:#4F46E5;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center">T</span>
+              <span style="font-size:13px;font-weight:600;font-family:ui-monospace,Menlo,monospace">{{ tbl.name }}</span>
+              <span style="font-size:11px;color:#9CA3AF">{{ tbl.count }}개 컬럼</span>
+            </div>
+            <div style="display:flex;flex-direction:column;padding:0 8px 6px">
+              <sc-for list="{{ tbl.cols }}" as="c" hint-placeholder-count="4">
+                <label style="display:flex;align-items:center;gap:8px;padding:5px 8px 5px 32px;border-radius:6px;cursor:pointer" style-hover="background:#F7F8FA">
+                  <input type="checkbox" checked="{{ c.checked }}" onChange="{{ c.onToggle }}" style="accent-color:#4F46E5;width:14px;height:14px;margin:0" />
+                  <span style="font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151">{{ c.name }}</span>
+                  <span style="font-size:11px;color:#B0B4BC;margin-left:auto">{{ c.type }}</span>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </aside>
+
+    <main style="display:flex;flex-direction:column;gap:16px;min-width:0">
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 24px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:12px;font-weight:700;color:#9CA3AF;letter-spacing:.06em">문제</span>
+        <p style="margin:0;font-size:14.5px;line-height:1.65;color:#374151">2026년 주문 데이터에서 <strong>월별 총 매출</strong>을 구하세요. 완료된 주문(<code style="font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#F3F4F6;border-radius:4px;padding:1px 5px">status = 'completed'</code>)만 포함하며, 결과는 월 오름차순으로 정렬합니다.</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:3px 8px">GROUP BY</span>
+          <span style="font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:3px 8px">집계 함수</span>
+          <span style="font-size:12px;color:#4B5563;background:#F3F4F6;border-radius:6px;padding:3px 8px">날짜 함수</span>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#4F46E5;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">1</span>
+          <span style="font-size:15px;font-weight:700">필요한 컬럼 선택</span>
+        </div>
+        <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ selectedCols }}" as="s" hint-placeholder-count="3">
+              <span style="font-size:12.5px;font-weight:500;font-family:ui-monospace,Menlo,monospace;color:#4338CA;background:#EEF2FF;border:1px solid #E0E7FF;border-radius:6px;padding:4px 9px">{{ s }}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noSelection }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:13.5px;color:#9CA3AF">왼쪽 스키마 탐색기에서 필요한 컬럼을 체크하세요.</p>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#4F46E5;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">2</span>
+          <span style="font-size:15px;font-weight:700">받을 표 그리기</span>
+          <span style="font-size:12.5px;color:#9CA3AF">원하는 결과 표의 컬럼명을 직접 적어 보세요</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="border:1px solid #E1E3E8;border-radius:8px;overflow:hidden;display:flex;flex-direction:column">
+            <div style="display:flex;background:#F9FAFB;border-bottom:1px solid #E7E8EC">
+              <sc-for list="{{ outCols }}" as="oc" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;border-right:1px solid #E7E8EC">
+                  <input value="{{ oc.value }}" onChange="{{ oc.onChange }}" style="width:132px;border:none;background:transparent;padding:9px 10px;font-size:12.5px;font-weight:600;font-family:ui-monospace,Menlo,monospace;color:#374151;outline:none;box-sizing:border-box" />
+                  <button onClick="{{ oc.onRemove }}" title="컬럼 삭제" style="border:none;background:none;color:#C4C8CF;font-size:13px;cursor:pointer;padding:0 8px 0 0;font-family:inherit" style-hover="color:#DC2626">×</button>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex">
+              <sc-for list="{{ outCols }}" as="oc" hint-placeholder-count="2">
+                <div style="width:158px;padding:9px 10px;font-size:12px;color:#C4C8CF;border-right:1px solid #F0F1F4;box-sizing:border-box;font-family:ui-monospace,Menlo,monospace">…</div>
+              </sc-for>
+            </div>
+          </div>
+          <button onClick="{{ addCol }}" style="border:1px dashed #C7CBD1;background:#fff;border-radius:8px;padding:9px 12px;font-size:12.5px;font-weight:500;color:#6B7280;cursor:pointer;font-family:inherit" style-hover="border-color:#4F46E5;color:#4F46E5">＋ 컬럼 추가</button>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#4F46E5;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">3</span>
+          <span style="font-size:15px;font-weight:700">AI에게 쿼리 요청</span>
+          <span style="font-size:12.5px;color:#9CA3AF">아래 프롬프트를 복사해 사용하는 AI에게 붙여넣으세요</span>
+        </div>
+        <pre style="margin:0;background:#F9FAFB;border:1px solid #F0F1F4;border-radius:8px;padding:14px 16px;font-size:12.5px;line-height:1.7;font-family:ui-monospace,Menlo,monospace;color:#4B5563;white-space:pre-wrap;word-break:break-all">{{ prompt }}</pre>
+        <button onClick="{{ copyPrompt }}" style="{{ copyBtnStyle }}">{{ copyLabel }}</button>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#4F46E5;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">4</span>
+          <span style="font-size:15px;font-weight:700">쿼리 붙여넣고 실행</span>
+        </div>
+        <textarea value="{{ sql }}" onChange="{{ onSqlChange }}" spellCheck="{{ false }}" placeholder="-- AI가 생성한 SQL을 여기에 붙여넣으세요" style="min-height:150px;resize:vertical;border:1px solid #E1E3E8;border-radius:8px;background:#FAFAFB;padding:14px 16px;font-size:13px;line-height:1.7;font-family:ui-monospace,Menlo,monospace;color:#18181B;outline:none;box-sizing:border-box" style-focus="border-color:#4F46E5;box-shadow:0 0 0 3px rgba(79,70,229,.12)"></textarea>
+        <div style="display:flex;gap:8px">
+          <button onClick="{{ runQuery }}" style="height:38px;padding:0 18px;background:#4F46E5;color:#fff;border:none;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit" style-hover="background:#4338CA">▶ 실행</button>
+          <button onClick="{{ gradeQuery }}" style="height:38px;padding:0 18px;background:#fff;color:#374151;border:1px solid #D8DAE0;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit" style-hover="background:#F3F4F6">채점</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasRun }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #E7E8EC;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04);overflow:hidden">
+          <div style="padding:14px 24px;border-bottom:1px solid #F0F1F4;display:flex;align-items:center;gap:10px">
+            <span style="font-size:13.5px;font-weight:700">실행 결과</span>
+            <span style="font-size:12px;color:#9CA3AF">{{ rowCount }}행 · 0.04s</span>
+          </div>
+          <div style="overflow-x:auto">
+            <div style="display:grid;grid-template-columns:180px 180px;padding:0 24px;border-bottom:1px solid #F0F1F4;background:#F9FAFB">
+              <span style="padding:9px 12px 9px 0;font-size:12px;font-weight:600;color:#6B7280;font-family:ui-monospace,Menlo,monospace">order_month</span>
+              <span style="padding:9px 0;font-size:12px;font-weight:600;color:#6B7280;font-family:ui-monospace,Menlo,monospace;text-align:right">total_revenue</span>
+            </div>
+            <sc-for list="{{ resultRows }}" as="r" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:180px 180px;padding:0 24px;border-bottom:1px solid #F7F8FA">
+                <span style="padding:8px 12px 8px 0;font-size:13px;font-family:ui-monospace,Menlo,monospace;color:#374151">{{ r.month }}</span>
+                <span style="padding:8px 0;font-size:13px;font-family:ui-monospace,Menlo,monospace;color:#374151;text-align:right">{{ r.revenue }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isCorrect }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:18px 24px;display:flex;align-items:flex-start;gap:12px">
+          <span style="width:24px;height:24px;border-radius:999px;background:#16A34A;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">✓</span>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:14.5px;font-weight:700;color:#166534">정답입니다!</span>
+            <span style="font-size:13.5px;color:#15803D;line-height:1.6">기준 답과 결과가 모두 일치합니다. 다음 문제로 넘어가 보세요.</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isWrong }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:12px;padding:18px 24px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <span style="width:24px;height:24px;border-radius:999px;background:#DC2626;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">×</span>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <span style="font-size:14.5px;font-weight:700;color:#991B1B">오답입니다 — 2개 행이 기준 답과 다릅니다</span>
+              <span style="font-size:13.5px;color:#B91C1C;line-height:1.6">취소된 주문이 포함된 것 같아요. <code style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#FEE2E2;border-radius:4px;padding:1px 5px">status = 'completed'</code> 조건을 확인해 보세요.</span>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #FECACA;border-radius:8px;overflow:hidden">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;background:#F9FAFB;border-bottom:1px solid #F0F1F4">
+              <span style="padding:8px 14px;font-size:12px;font-weight:600;color:#6B7280">order_month</span>
+              <span style="padding:8px 14px;font-size:12px;font-weight:600;color:#6B7280;text-align:right">내 결과</span>
+              <span style="padding:8px 14px;font-size:12px;font-weight:600;color:#6B7280;text-align:right">기준 답</span>
+            </div>
+            <sc-for list="{{ diffRows }}" as="dr" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column">
+                <sc-if value="{{ dr.bad }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #F7F8FA;background:#FEF2F2">
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151">{{ dr.month }}</span>
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;text-align:right;color:#DC2626;font-weight:700;text-decoration:line-through">{{ dr.mine }}</span>
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151;text-align:right">{{ dr.expected }}</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ dr.ok }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #F7F8FA;background:#fff">
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151">{{ dr.month }}</span>
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151;text-align:right">{{ dr.mine }}</span>
+                    <span style="padding:7px 14px;font-size:12.5px;font-family:ui-monospace,Menlo,monospace;color:#374151;text-align:right">{{ dr.expected }}</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;gradeState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;correct&quot;,&quot;incorrect&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;'idle' | 'correct' | 'incorrect'&quot;,&quot;section&quot;:&quot;미리보기 상태&quot;}}">
+class Component extends DCLogic {
+  state = {
+    checked: { 'orders.order_date': true, 'orders.total_amount': true, 'orders.status': true },
+    outCols: ['order_month', 'total_revenue'],
+    sql: '',
+    ran: false,
+    grade: null,   // null | 'correct' | 'wrong'
+    copied: false
+  };
+
+  schema() {
+    return [
+      { name: 'orders', cols: [['order_id', 'INT'], ['customer_id', 'INT'], ['order_date', 'DATE'], ['total_amount', 'INT'], ['status', 'VARCHAR']] },
+      { name: 'customers', cols: [['customer_id', 'INT'], ['name', 'VARCHAR'], ['email', 'VARCHAR'], ['region', 'VARCHAR'], ['joined_at', 'DATE']] },
+      { name: 'order_items', cols: [['order_id', 'INT'], ['product_id', 'INT'], ['quantity', 'INT'], ['unit_price', 'INT']] },
+      { name: 'products', cols: [['product_id', 'INT'], ['product_name', 'VARCHAR'], ['category', 'VARCHAR'], ['price', 'INT']] }
+    ];
+  }
+
+  expected() {
+    return [
+      { month: '2026-01', revenue: '42,180,000' },
+      { month: '2026-02', revenue: '38,450,000' },
+      { month: '2026-03', revenue: '45,920,000' },
+      { month: '2026-04', revenue: '51,300,000' },
+      { month: '2026-05', revenue: '48,760,000' },
+      { month: '2026-06', revenue: '55,040,000' }
+    ];
+  }
+
+  wrongRows() {
+    const e = this.expected();
+    return e.map((r, i) => (i === 1 || i === 3) ? { ...r, revenue: (i === 1 ? '41,270,000' : '54,880,000') } : r);
+  }
+
+  isGoodSql(sql) {
+    const s = sql.toLowerCase();
+    return s.includes('group by') && (s.includes('sum(') || s.includes('sum (')) && s.includes('completed');
+  }
+
+  renderVals() {
+    const { checked, outCols, sql, ran, copied } = this.state;
+    const grade = this.state.grade ?? (this.props.gradeState === 'correct' ? 'correct' : this.props.gradeState === 'incorrect' ? 'wrong' : null);
+    const hasRun = ran || grade !== null;
+
+    const tables = this.schema().map(t => ({
+      name: t.name,
+      count: t.cols.length,
+      cols: t.cols.map(([name, type]) => {
+        const key = t.name + '.' + name;
+        return {
+          name, type,
+          checked: !!checked[key],
+          onToggle: () => this.setState(s => ({ checked: { ...s.checked, [key]: !s.checked[key] } }))
+        };
+      })
+    }));
+
+    const selectedCols = Object.keys(checked).filter(k => checked[k]);
+
+    const prompt = '너는 SQL 튜터야. 아래 조건으로 PostgreSQL 쿼리를 작성해 줘.\n\n' +
+      '사용할 컬럼: ' + (selectedCols.join(', ') || '(선택 없음)') + '\n' +
+      '원하는 결과 표: ' + outCols.join(' | ') + '\n' +
+      "조건: status = 'completed' 주문만, 2026년, 월별 집계, 월 오름차순 정렬";
+
+    const good = this.isGoodSql(sql);
+    const resultRows = good ? this.expected() : this.wrongRows();
+
+    const diffRows = this.wrongRows().map((r, i) => {
+      const exp = this.expected()[i];
+      const bad = r.revenue !== exp.revenue;
+      return { month: r.month, mine: r.revenue, expected: exp.revenue, bad, ok: !bad };
+    });
+
+    return {
+      tables,
+      selectedCols,
+      hasSelection: selectedCols.length > 0,
+      noSelection: selectedCols.length === 0,
+      outCols: outCols.map((value, i) => ({
+        value,
+        onChange: e => this.setState(s => { const a = [...s.outCols]; a[i] = e.target.value; return { outCols: a }; }),
+        onRemove: () => this.setState(s => ({ outCols: s.outCols.filter((_, j) => j !== i) }))
+      })),
+      addCol: () => this.setState(s => ({ outCols: [...s.outCols, 'column_' + (s.outCols.length + 1)] })),
+      prompt,
+      copyLabel: copied ? '✓ 복사됨' : '프롬프트 복사',
+      copyBtnStyle: { alignSelf: 'flex-start', height: '36px', padding: '0 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', border: copied ? '1px solid #BBF7D0' : 'none', background: copied ? '#F0FDF4' : '#4F46E5', color: copied ? '#166534' : '#fff' },
+      copyPrompt: () => {
+        try { navigator.clipboard.writeText(prompt); } catch (e) {}
+        this.setState({ copied: true });
+        clearTimeout(this._ct);
+        this._ct = setTimeout(() => this.setState({ copied: false }), 1800);
+      },
+      sql,
+      onSqlChange: e => this.setState({ sql: e.target.value }),
+      runQuery: () => this.setState({ ran: true, grade: null }),
+      gradeQuery: () => this.setState({ ran: true, grade: good ? 'correct' : 'wrong' }),
+      hasRun,
+      diffRows,
+      resultRows,
+      rowCount: resultRows.length,
+      isCorrect: grade === 'correct',
+      isWrong: grade === 'wrong'
+    };
+  }
+}
+</script>
+</body>
+</html>
