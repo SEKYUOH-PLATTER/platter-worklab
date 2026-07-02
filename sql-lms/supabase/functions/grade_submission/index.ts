@@ -5,6 +5,21 @@ import initSqlJs from 'https://esm.sh/sql.js@1.12.0'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+// Load sql.js once per isolate. In Deno we must hand Emscripten the wasm bytes
+// directly — letting it fetch/locate the wasm itself aborts the isolate (503).
+let sqlPromise: ReturnType<typeof initSqlJs> | null = null
+function getSql() {
+  if (!sqlPromise) {
+    sqlPromise = (async () => {
+      const res = await fetch('https://cdn.jsdelivr.net/npm/sql.js@1.12.0/dist/sql-wasm.wasm')
+      const wasmBinary = new Uint8Array(await res.arrayBuffer())
+      return await initSqlJs({ wasmBinary })
+    })()
+  }
+  return sqlPromise
 }
 
 Deno.serve(async (req) => {
@@ -101,8 +116,8 @@ Deno.serve(async (req) => {
       if (dataset) setupSql = dataset.setup_sql
     }
 
-    // Initialize sql.js in Deno
-    const SQL = await initSqlJs()
+    // Initialize sql.js in Deno (wasm bytes fetched explicitly, see getSql)
+    const SQL = await getSql()
 
     function runInDb(setup: string, extra: string | null, query: string) {
       const db = new SQL.Database()
