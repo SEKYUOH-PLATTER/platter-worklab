@@ -8,7 +8,7 @@
       ]
     },
     {
-      "source": "/sql-wasm.wasm",
+      "source": "/(.*)\\.wasm",
       "headers": [{ "key": "Content-Type", "value": "application/wasm" }]
     }
   ],
