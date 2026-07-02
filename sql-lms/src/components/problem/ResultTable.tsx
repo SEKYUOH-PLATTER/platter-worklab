@@ -10,8 +10,8 @@ interface Props {
 export default function ResultTable({ result, error, label, highlightDiff }: Props) {
   if (error) {
     return (
-      <div className="rounded-lg bg-red-950 border border-red-800 px-4 py-3">
-        <p className="text-red-300 text-xs font-mono whitespace-pre-wrap">{error}</p>
+      <div className="rounded-lg border border-[#FECACA] bg-[#FEF2F2] px-4 py-3">
+        <p className="whitespace-pre-wrap font-mono text-xs text-[#B91C1C]">{error}</p>
       </div>
     )
   }
@@ -20,38 +20,39 @@ export default function ResultTable({ result, error, label, highlightDiff }: Pro
 
   if (result.values.length === 0 && result.columns.length === 0) {
     return (
-      <div className="rounded-lg bg-gray-800 border border-gray-700 px-4 py-3">
-        <p className="text-gray-400 text-xs">결과 없음 (0 rows)</p>
+      <div className="rounded-lg border border-[#E7E8EC] bg-white px-4 py-3">
+        <p className="text-xs text-[#9CA3AF]">결과 없음 (0 rows)</p>
       </div>
     )
   }
 
   return (
     <div>
-      {label && (
-        <p className="text-xs text-gray-400 mb-1.5 font-medium">{label}</p>
-      )}
-      <div className="rounded-lg border border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto max-h-72 overflow-y-auto scrollbar-thin">
-          <table className="w-full text-xs font-mono">
-            <thead className="bg-gray-800 sticky top-0">
+      {label && <p className="mb-1.5 text-xs font-medium text-[#6B7280]">{label}</p>}
+      <div className="overflow-hidden rounded-lg border border-[#E7E8EC]">
+        <div className="scrollbar-thin max-h-72 overflow-auto">
+          <table className="w-full font-mono text-xs">
+            <thead className="sticky top-0 bg-[#F9FAFB]">
               <tr>
                 {result.columns.map((col) => (
-                  <th key={col} className="px-3 py-2 text-left text-gray-300 font-medium border-b border-gray-700 whitespace-nowrap">
+                  <th
+                    key={col}
+                    className="whitespace-nowrap border-b border-[#F0F1F4] px-3 py-2 text-left font-semibold text-[#6B7280]"
+                  >
                     {col}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="bg-gray-900 divide-y divide-gray-800">
+            <tbody className="divide-y divide-[#F7F8FA] bg-white">
               {result.values.map((row, i) => {
                 const rowKey = row.join('|')
                 const isDiff = highlightDiff?.has(rowKey)
                 return (
-                  <tr key={i} className={isDiff ? 'bg-red-950' : 'hover:bg-gray-800/50'}>
+                  <tr key={i} className={isDiff ? 'bg-[#FEF2F2]' : 'hover:bg-[#FAFAFB]'}>
                     {row.map((cell, j) => (
-                      <td key={j} className="px-3 py-1.5 text-gray-300 whitespace-nowrap">
-                        {cell === null ? <span className="text-gray-600 italic">NULL</span> : String(cell)}
+                      <td key={j} className="whitespace-nowrap px-3 py-1.5 text-[#374151]">
+                        {cell === null ? <span className="italic text-[#C4C8CF]">NULL</span> : String(cell)}
                       </td>
                     ))}
                   </tr>
@@ -60,8 +61,8 @@ export default function ResultTable({ result, error, label, highlightDiff }: Pro
             </tbody>
           </table>
         </div>
-        <div className="bg-gray-800 px-3 py-1.5 border-t border-gray-700">
-          <span className="text-xs text-gray-500">{result.values.length} rows</span>
+        <div className="border-t border-[#F0F1F4] bg-[#F9FAFB] px-3 py-1.5">
+          <span className="text-xs text-[#9CA3AF]">{result.values.length} rows</span>
         </div>
       </div>
     </div>

@@ -13,7 +13,6 @@ export default function SqlEditor({ value, onChange, onRun, onGrade, running, gr
   const ref = useRef<HTMLTextAreaElement>(null)
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    // Tab 키 → 2칸 공백 삽입
     if (e.key === 'Tab') {
       e.preventDefault()
       const el = e.currentTarget
@@ -25,7 +24,6 @@ export default function SqlEditor({ value, onChange, onRun, onGrade, running, gr
         el.selectionStart = el.selectionEnd = start + 2
       })
     }
-    // Ctrl+Enter / Cmd+Enter → 실행
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault()
       onRun()
@@ -33,44 +31,36 @@ export default function SqlEditor({ value, onChange, onRun, onGrade, running, gr
   }
 
   return (
-    <div className="rounded-xl overflow-hidden border border-gray-700">
-      {/* 에디터 헤더 */}
-      <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
-        <span className="text-xs text-gray-400 font-mono">SQL</span>
-        <span className="text-xs text-gray-600">Ctrl+Enter로 실행</span>
-      </div>
-
-      {/* 텍스트 에디터 */}
+    <div className="flex flex-col gap-3.5">
       <textarea
         ref={ref}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={handleKeyDown}
         spellCheck={false}
-        className="w-full bg-gray-900 text-green-300 font-mono text-sm
-                   px-4 py-4 resize-none focus:outline-none leading-relaxed
-                   placeholder-gray-600 scrollbar-thin"
-        rows={8}
-        placeholder="-- 여기에 SQL을 작성하거나 붙여넣으세요"
+        rows={7}
+        placeholder="-- AI가 생성한 SQL을 여기에 붙여넣으세요"
+        className="min-h-[150px] resize-y rounded-lg border border-[#E1E3E8] bg-[#FAFAFB] px-4 py-3.5
+                   font-mono text-[13px] leading-[1.7] text-[#18181B] outline-none
+                   placeholder-[#B0B4BC] focus:border-[#4F46E5] focus:ring-[3px] focus:ring-[#4F46E5]/[0.12]"
       />
 
-      {/* 버튼 영역 */}
-      <div className="bg-gray-800 px-4 py-3 flex items-center gap-2">
+      <div className="flex gap-2">
         <button
           onClick={onRun}
           disabled={running || !value.trim()}
-          className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40
-                     text-white text-sm rounded-lg transition-colors font-medium"
+          className="flex h-[38px] items-center rounded-lg bg-[#4F46E5] px-[18px] text-[13.5px] font-semibold
+                     text-white transition-colors hover:bg-[#4338CA] disabled:opacity-40"
         >
           {running ? '실행 중...' : '▶ 실행'}
         </button>
         <button
           onClick={onGrade}
           disabled={grading || !value.trim()}
-          className="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40
-                     text-white text-sm rounded-lg transition-colors font-medium"
+          className="flex h-[38px] items-center rounded-lg border border-[#D8DAE0] bg-white px-[18px] text-[13.5px]
+                     font-semibold text-[#374151] transition-colors hover:bg-[#F3F4F6] disabled:opacity-40"
         >
-          {grading ? '채점 중...' : '채점하기'}
+          {grading ? '채점 중...' : '채점'}
         </button>
       </div>
     </div>

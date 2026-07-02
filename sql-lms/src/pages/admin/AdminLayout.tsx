@@ -15,25 +15,33 @@ export default function AdminLayout() {
     navigate('/login')
   }
 
+  const bottomLink =
+    'block rounded-lg px-3 py-2 text-[13px] font-medium text-[#4B5563] transition-colors hover:bg-[#F3F4F6]'
+
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex min-h-screen bg-[#F7F8FA] text-[#18181B]">
       {/* 사이드바 */}
-      <aside className="w-52 bg-gray-900 flex flex-col flex-shrink-0">
-        <div className="px-4 py-5 border-b border-gray-800">
-          <p className="text-white text-sm font-semibold">SQL LMS</p>
-          <p className="text-gray-500 text-xs mt-0.5">어드민</p>
+      <aside className="sticky top-0 flex min-h-screen w-[220px] flex-none flex-col border-r border-[#E7E8EC] bg-white px-3 py-5">
+        <div className="flex items-center gap-2.5 px-2.5 pb-5">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#4F46E5] text-[9px] font-extrabold text-white">
+            SQL
+          </span>
+          <div className="flex flex-col">
+            <span className="text-[13.5px] font-bold tracking-[-0.01em]">원데이 SQL</span>
+            <span className="text-[11px] text-[#9CA3AF]">관리자 콘솔</span>
+          </div>
         </div>
 
-        <nav className="flex-1 px-2 py-3 space-y-0.5">
+        <nav className="flex flex-col gap-0.5">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `block px-3 py-2 rounded-lg text-sm transition-colors ${
+                `rounded-lg px-3 py-[9px] text-left text-[13.5px] transition-colors ${
                   isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                    ? 'bg-[#EEF2FF] font-semibold text-[#4338CA]'
+                    : 'font-medium text-[#4B5563] hover:bg-[#F3F4F6]'
                 }`
               }
             >
@@ -42,17 +50,11 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <div className="px-2 py-3 border-t border-gray-800 space-y-0.5">
-          <NavLink
-            to="/learn"
-            className="block px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-          >
-            ← 학습 화면
+        <div className="mt-auto flex flex-col gap-0.5 border-t border-[#F0F1F4] pt-3">
+          <NavLink to="/learn" className={bottomLink}>
+            ← 학습 페이지로
           </NavLink>
-          <button
-            onClick={handleSignOut}
-            className="w-full text-left px-3 py-2 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
-          >
+          <button onClick={handleSignOut} className={`w-full text-left ${bottomLink}`}>
             로그아웃
           </button>
         </div>
