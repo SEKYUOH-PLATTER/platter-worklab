@@ -70,10 +70,10 @@ ${outputText}${sortOrder ? `\n정렬 기준: ${sortOrder}` : ''}${expectedRows ?
   return (
     <button
       onClick={handleCopy}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+      className={`flex items-center gap-2 self-start rounded-lg px-4 py-2 text-sm font-semibold transition-all ${
         copied
-          ? 'bg-green-600 text-white'
-          : 'bg-gray-900 hover:bg-gray-700 text-white'
+          ? 'border border-[#BBF7D0] bg-[#F0FDF4] text-[#166534]'
+          : 'bg-[#4F46E5] text-white hover:bg-[#4338CA]'
       }`}
     >
       {copied ? (
